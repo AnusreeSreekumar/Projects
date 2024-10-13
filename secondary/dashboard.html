@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+</head>
+<body class="bg-gray-100 text-gray-900">
+
+    <!-- Header Section -->
+    <header class="bg-green-500 text-white p-4 flex justify-between items-center">
+        <div class="flex items-center">
+            <img src="/Images/guy.png" alt="Profile Picture" class="w-16 h-16 rounded-full mr-4">
+            <span class="text-lg font-semibold">John Doe</span>
+        </div>
+        <div class="flex space-x-4">
+            <span class="cursor-pointer">🔔</span>
+            <span class="cursor-pointer">⚙️</span>
+        </div>
+    </header>
+
+    <!-- Main Content Section (Two Columns) -->
+    <div class="flex flex-wrap md:flex-nowrap p-4 space-y-4 md:space-y-0 md:space-x-4">
+        <!-- Left Column -->
+        <div class="bg-white shadow-md rounded-lg p-6 w-full md:w-1/3">
+            <!-- Profile Section -->
+            <section class="mb-6">
+                <h2 class="text-xl font-semibold border-b-2 border-green-500 pb-2 mb-4">Profile</h2>
+                <p><strong>Username:</strong> John Doe</p>
+                <p><strong>Email:</strong> john.doe@example.com</p>
+                <p><strong>Achievements:</strong> 5 Badges</p>
+            </section>
+
+            <!-- Progress Tracking -->
+            <section>
+                <h2 class="text-xl font-semibold border-b-2 border-green-500 pb-2 mb-4">Progress Tracking</h2>
+                <p><strong>Overall Performance:</strong> 85%</p>
+                <p><strong>Leaderboard Position:</strong> 12th</p>
+                <!-- <p><strong>Streak:</strong> 7 Days</p> -->
+            </section>
+        </div>
+
+        <!-- Right Column -->
+        <div class="bg-white shadow-md rounded-lg p-6 w-full md:w-2/3">
+            <!-- Quiz Management -->
+            <section class="mb-6">
+                <h2 class="text-xl font-semibold border-b-2 border-green-500 pb-2 mb-4">Quiz Management</h2>
+                <ul class="list-none space-y-2">
+                    <li>Recommended Quizzes</li>
+                    <li>Ongoing Quizzes</li>
+                    <li>Quiz Categories</li>
+                    <li>Bookmarks</li>
+                    <li>Custom Quizzes</li>
+                </ul>
+            </section>
+
+            <!-- Notifications & Announcements -->
+            <section>
+                <h2 class="text-xl font-semibold border-b-2 border-green-500 pb-2 mb-4">Notifications & Announcements</h2>
+                <ul class="list-none space-y-2">
+                    <li>New Quiz Invitation</li>
+                    <li>Platform Update</li>
+                    <li>Achievement Unlocked!</li>
+                </ul>
+            </section>
+        </div>
+    </div>
+
+    <!-- Footer Section -->
+    <footer class="bg-gray-800 text-white p-6">
+        <div class="flex flex-wrap justify-around">
+            <section class="w-full md:w-1/3 mb-4">
+                <h2 class="text-lg font-semibold text-green-500">Statistics</h2>
+                <p><strong>Personal Statistics:</strong> 10 Quizzes Taken</p>
+                <p><strong>Comparison Stats:</strong> Top 20%</p>
+            </section>
+
+            <section class="w-full md:w-1/3 mb-4">
+                <h2 class="text-lg font-semibold text-green-500">Community Interaction</h2>
+                <ul class="list-none space-y-2">
+                    <li>Friends & Groups</li>
+                    <li>Discussions</li>
+                    <li>Challenges</li>
+                </ul>
+            </section>
+
+            <section class="w-full md:w-1/3">
+                <h2 class="text-lg font-semibold text-green-500">Settings & Preferences</h2>
+                <ul class="list-none space-y-2">
+                    <li>Quiz Preferences</li>
+                    <li>Notification Preferences</li>
+                    <li>Theme & Layout</li>
+                </ul>
+            </section>
+        </div>
+    </footer>
+
+</body>
+</html>
