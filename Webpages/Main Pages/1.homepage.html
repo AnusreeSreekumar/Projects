@@ -3,10 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Website Homepage</title>
+    <title>QuizMaster</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+        .background-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(45deg, #6DD5ED, #2193B0);
+            animation: gradient 10s ease infinite;
+            z-index: -1;
+        }
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .quiz-topic {
+            transition: transform 0.2s;
+        }
+        .quiz-topic:hover {
+            transform: scale(1.05);
+        }
+    </style>
 </head>
-<body>
-   
+<body class="flex flex-col items-center justify-center min-h-screen text-white">
+
+    <div class="background-animation"></div>
+
+    <h1 class="text-5xl font-bold mb-2">QuizMaster</h1>
+    <p class="text-lg mb-8">Test your knowledge across various subjects!</p>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full max-w-5xl p-4">
+        <div class="quiz-topic bg-blue-500 rounded-lg shadow-lg p-6 text-center">
+            <h2 class="text-2xl font-semibold">Science</h2>
+        </div>
+        <div class="quiz-topic bg-green-500 rounded-lg shadow-lg p-6 text-center">
+            <h2 class="text-2xl font-semibold">History</h2>
+        </div>
+        <div class="quiz-topic bg-red-500 rounded-lg shadow-lg p-6 text-center">
+            <h2 class="text-2xl font-semibold">Geography</h2>
+        </div>
+        <div class="quiz-topic bg-yellow-500 rounded-lg shadow-lg p-6 text-center">
+            <h2 class="text-2xl font-semibold">Mathematics</h2>
+        </div>
+        <div class="quiz-topic bg-purple-500 rounded-lg shadow-lg p-6 text-center">
+            <h2 class="text-2xl font-semibold">Literature</h2>
+        </div>
+        <div class="quiz-topic bg-pink-500 rounded-lg shadow-lg p-6 text-center">
+            <h2 class="text-2xl font-semibold">General Knowledge</h2>
+        </div>
+    </div>
     
 </body>
 </html>

@@ -30,31 +30,33 @@ function resetlink(){
         }
 }
 
-function editProfileBtn(){
+function removeItem(){
 
-    const profile = document.getElementById('profile');
-    const oldname = document.getElementById('username').value;
-    const oldemail = document.getElementById('email').value
-
-    enableEditing();
-
-    function enableEditing() {
-        forEach(field => {
-            field.removeAttribute('readonly');
-            field.classList.add('editable');
-        });
-        saveChangesBtn.style.display = 'inline-block';
-    }
-
-    function resetFields() {
-        document.getElementById('firstName').value = oldname;
-        document.getElementById('email').value = oldemail;
-    }
-    
-    saveChangesBtn.addEventListener('click', () => {
-        // Reset fields to original values after save
-        resetFields();
-
-
-    
+    let rmvitem = document.getElementById('item2');
+    rmvitem.remove();
 }
+
+// function editProfileBtn(){
+
+//     const profile = document.getElementById('profile');
+//     const oldname = document.getElementById('username').value;
+//     const oldemail = document.getElementById('email').value
+
+//     enableEditing();
+
+//     function enableEditing() {
+//         forEach(field => {
+//             field.removeAttribute('readonly');
+//             field.classList.add('editable');
+//         });
+//         saveChangesBtn.style.display = 'inline-block';
+//     }
+
+//     function resetFields() {
+//         document.getElementById('firstName').value = oldname;
+//         document.getElementById('email').value = oldemail;
+//     }
+    
+//     saveChangesBtn.addEventListener('click', () => {
+//         // Reset fields to original values after save
+//         resetFields();
