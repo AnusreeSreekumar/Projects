@@ -8,18 +8,13 @@ import { Player } from "../Models/playerSet.js";
 import { authenticate } from "../Middleware/auth.js";
 import { QuestionSet } from "../Models/questionSet.js";
 import { QuizCatgry } from "../Models/quizCatgry.js";
-import {quizEventEmitter} from "../quizEvents.js";
+import { quizEventEmitter } from "../quizEvents.js";
 
 dotenv.config();
 const playerroute = Router();
 const SecretKey = process.env.secretKey
 
 mongoose.connect('mongodb://localhost:27017/TriviaHub')
-
-playerroute.get('/', (req, res) => {
-
-    res.send("Hello World")
-});
 
 //User Signup 
 playerroute.post('/signup_user', async (req, res) => {
@@ -106,7 +101,7 @@ playerroute.post('/startQuiz', authenticate, async (req, res) => {
         if (loginRole == 'User') {
 
             const { playerId, Title } = req.body;
-            const quizCategory = await QuizCatgry.findOne({ dbTitle : Title });
+            const quizCategory = await QuizCatgry.findOne({ dbTitle: Title });
             console.log("Category", quizCategory);
 
             if (!quizCategory) {
@@ -157,8 +152,8 @@ playerroute.post('/startQuiz', authenticate, async (req, res) => {
     }
 })
 
-//Score calculation:
-playerroute.post('/submit-quiz', authenticate, async (req, res) => {
+//Score calculation and DB update:
+playerroute.patch('/submit-quiz', authenticate, async (req, res) => {
 
     const loginRole = req.UserRole;
     try {
@@ -167,6 +162,7 @@ playerroute.post('/submit-quiz', authenticate, async (req, res) => {
             const { playerId, answers, categoryId } = req.body;
             let totalScore = 0;
             let correctAnswers = 0;
+            let incorrectAnswers = 0;
 
             const questionSet = await QuestionSet.findOne({ dbquizId: categoryId });
             console.log("QuestionSet: ", questionSet);
@@ -180,20 +176,42 @@ playerroute.post('/submit-quiz', authenticate, async (req, res) => {
                 console.log("Correct answer list: ", correctAnswersList);
 
                 answers.forEach((answer, idx) => {
-                    if (answer === correctAnswersList[idx]) {
+                    // console.log(`Index: ${idx}, Answer: ${answer}`);
+                    if (answer == correctAnswersList[idx]) {
                         totalScore += 4;  // Correct answer, +4 points
                         correctAnswers++;
                     } else {
                         totalScore -= 2;  // Incorrect answer, -2 points
+                        incorrectAnswers++;
                     }
-                });
+                    console.log("Total Score: ", totalScore,);
 
-                quizEventEmitter.emit('quizCompleted', {
-                    playerId,
-                    categoryId,
-                    score: totalScore
                 });
+                // Update Player Schema
+                const player = await Player.findOne({ dbUsername: playerId })
+                console.log("Player Dtls: ", player);
 
+                if (!player) {
+                    return res.status(404).json({ message: 'Player not found' });
+                }
+                else {
+
+                    // Add to dbScores
+                    player.dbScores.push({
+                        quizId: questionSet._id,
+                        score: totalScore,
+                    });
+                    // Add to dbQuizHistory
+                    player.dbQuizHistory.push({
+                        categoryId,
+                        score: totalScore,
+                    });
+                    // Update dbTotalScore
+                    player.dbTotalScore += totalScore;
+                    await player.save();
+                    console.log(`Updated details for ${playerId}:`, player);
+                }
+                return res.status(200).json({ message: `${playerId} is updated with Score details` });                
             }
         }
         else {
@@ -204,5 +222,49 @@ playerroute.post('/submit-quiz', authenticate, async (req, res) => {
         console.log(error);
     }
 })
+
+//To GET the Score details
+playerroute.get('/dashboard', authenticate, async (req, res) => {
+
+    const loginRole = req.UserRole;
+    console.log("Role:", loginRole);
+
+    try {
+        if (loginRole == 'User') {
+
+            const playerId = req.UserName;
+            console.log("Username:", playerId);
+
+            // Fetch the player by ID
+            const player = await Player.findOne({ dbEmail: playerId })
+            console.log(player);
+
+            if (!player) {
+                return res.status(404).json({ message: 'Player not found' });
+            }
+            else {
+
+                // Prepare the data for the dashboard
+                const dashboardData = {
+                    totalScore: player.dbTotalScore || 0,
+                    quizHistory: player.dbQuizHistory.map(history => ({
+                        categoryId: history.categoryId,
+                        score: history.score,
+                        date: history.date
+                    }))
+                };
+
+                res.status(200).json({
+                    message: 'Dashboard data retrieved successfully',
+                    data: dashboardData
+                });
+            }
+        }
+    }
+    catch (error) {
+        console.error('Error fetching dashboard data:', error);
+        res.status(500).json({ message: 'Failed to retrieve dashboard data' });
+    }
+});
 
 export { playerroute }

@@ -216,7 +216,7 @@ adminroute.post('/addquestionset/:categoryId', authenticate, async (req, res) =>
                 }
             }
             const isCollectionEmpty = await QuestionSet.countDocuments();
-            console.log("Size of QuisSet collection", isCollectionEmpty);
+            console.log("Size of QuizSet collection", isCollectionEmpty);
             if (isCollectionEmpty == 0) {
                 await QuestionSet.collection.drop();
                 console.log("The QuizSet collection was empty and has been deleted.");
@@ -235,7 +235,7 @@ adminroute.post('/addquestionset/:categoryId', authenticate, async (req, res) =>
 
 //Score Updation
 
-quizEventEmitter.on('quizCompleted', async (data) => {
+quizEventEmitter.on('quizCompleted', async (data, callback) => {
 
     console.log("Event received in admin:", data);
     const { playerId, categoryId, score } = data;
@@ -248,31 +248,31 @@ quizEventEmitter.on('quizCompleted', async (data) => {
         console.log("Player", player);
 
         if (!player) {
-            return res.status(404).json({ message: 'Player not found' });
+            console.log('Player not found');
         }
         else {
 
-            player.dbQuizHistory.push({ categoryId, score, date: new Date() });
+            player.dbQuizHistory.push({
+                categoryId: categoryId,
+                score: score,
+                date: new Date()
+            });
             player.dbScores.push({
                 quizId: categoryId,
                 score: score,
                 date: new Date()
             });
             player.dbTotalScore = (player.dbTotalScore || 0) + score;
-            res.status(200).json({
-                message: 'Quiz submitted successfully!',
-                score: totalScore,
-                correctAnswers,
-                incorrectAnswers,
-                feedback: `You got ${correctAnswers} correct and ${incorrectAnswers} incorrect answers.`
-            });
+            await player.save();
+            console.log('Player score and history updated successfully in admin route!');
+            callback(null, 'Admin update successful');
         }
     }
     catch (error) {
-        console.log(error);
+        console.error('Error updating player data in admin:', error);
+        callback(error);
     }
 })
-
 
 //Delete QuestionSet
 adminroute.delete('/deleteQuestionset/:ObjectId', authenticate, async (req, res) => {
@@ -284,23 +284,24 @@ adminroute.delete('/deleteQuestionset/:ObjectId', authenticate, async (req, res)
             console.log("DB Objid: ", ObjectId);
 
             const existingQuestion = await QuestionSet.findOne({ _id: ObjectId })
-            console.log(existingQuestion);
-            console.log(existingQuestion.dbquizId);
-            const existingCatgry = await QuizCatgry.fin
+            console.log("Existing Questions:",existingQuestion);
+            // console.log(existingQuestion.dbquizId);
+            const existingCatgry = await QuizCatgry.findOne({_id:existingQuestion.dbquizId})
+            // console.log("Existing QuizCatg:",existingCatgry);
+            console.log("Question exist:",existingCatgry.dbQuestions[0]);
+            
+            if (existingQuestion) {
 
+                await QuestionSet.deleteOne({ _id: ObjectId })
+                res.status(200).json({ message: "Questions Deleted" });
+                console.log("Questions Deleted");
+                // await QuizCatgry.findByIdAndDelete(existingCatgry.dbQuestions[0]);
+                // console.log("Quiz category Deleted");
+            }
+            else {
 
-            // const existingCatgry = await QuizCatgry.findOne({})
-            // if (existingQuestion) {
-
-            //     await QuestionSet.deleteOne({ _id: ObjectId })
-            //     res.status(200).json({ message: "Questions Deleted" });
-            //     console.log("Questions Deleted");
-            //     const chkdbQustns = await QuizCatgry.findOne
-            // }
-            // else {
-
-            //     res.status(404).json({ message: "No Questionset Found" });
-            // }
+                res.status(404).json({ message: "No Questionset Found" });
+            }
         }
         else {
             console.log("Admin access only");
@@ -311,5 +312,6 @@ adminroute.delete('/deleteQuestionset/:ObjectId', authenticate, async (req, res)
         console.log(error);
     }
 })
+
 
 export { adminroute }
