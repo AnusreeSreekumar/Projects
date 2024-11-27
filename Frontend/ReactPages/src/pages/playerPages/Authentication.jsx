@@ -1,13 +1,17 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom'; // Import useNavigate for React Router v6
+import getUserType from '../../utils/auth'
 
 function Authentication() {
+
     const [activeTab, setActiveTab] = useState('signup'); // State to track active form (sign-up or login)
     const navigate = useNavigate(); // Hook to handle redirection after login
 
     const [Username, setUsername] = useState('');
     const [Email, setEmail] = useState('');
     const [Password, setPassword] = useState('');
+
+    const [userRole, setUserRole] = useState(null);
 
     // Function to switch between tabs
     const handleTabChange = (tab) => {
@@ -56,7 +60,7 @@ function Authentication() {
 
     // Handle Login (for demonstration, you can replace it with actual login logic)
     const handleLogin = async (e) => {
-       
+
         e.preventDefault()
 
         const loginDtls = {
@@ -64,8 +68,8 @@ function Authentication() {
             Password
         };
         try {
-            
-            const response = await fetch('http://localhost:3000/login_user', {
+
+            const response = await fetch('http://localhost:3000/login', {
 
                 method: 'POST',
                 credentials: 'include',
@@ -73,22 +77,29 @@ function Authentication() {
                 body: JSON.stringify(loginDtls)
             });
             const data = await response.json();
-            
-            if(response.status == 200){
+
+            if (response.status == 200) {
                 setEmail('');
                 setPassword('');
-                navigate('/dashboard')
                 console.log(data);
+                navigate('/addQuiz')
+                // setUserRole(getUserType());
+
+                // Navigate based on role
+                // if (userRole === 'admin') {
+                //     navigate('/admin-dashboard');
+                // } else if (userRole === 'User') {
+                //     navigate('/dashboard');
+                // }
             }
-            else{
+            else {
                 console.log('Please check your credentials');
             }
-            
+
         } catch (error) {
             console.log('Issue in Login', error);
-            
+
         }
-        navigate('/dashboard');
     };
 
     return (

@@ -1,6 +1,6 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import '../utils/style.css'
+import React from "react";
+import { Link } from "react-router-dom";
+import "../../utils/style.css";  // Correct import statement for your CSS
 
 const Homepage = () => {
   return (

@@ -12,7 +12,7 @@ import { quizEventEmitter } from "../quizEvents.js";
 
 dotenv.config();
 const playerroute = Router();
-const SecretKey = process.env.secretKey
+// const SecretKey = process.env.secretKey
 
 mongoose.connect('mongodb://localhost:27017/TriviaHub')
 
@@ -57,40 +57,40 @@ playerroute.post('/signup_user', async (req, res) => {
 })
 
 //User login
-playerroute.post('/login_user', async (req, res) => {
+// playerroute.post('/login_user', async (req, res) => {
 
-    try {
+//     try {
 
-        const { Email, Password } = req.body
+//         const { Email, Password } = req.body
 
-        const result = await Player.findOne({ dbEmail: Email })
-        if (result) {
+//         const result = await Player.findOne({ dbEmail: Email })
+//         if (result) {
 
-            const isvalid = await bcrypt.compare(Password, result.dbPassword)
-            if (isvalid) {
-                const token = jwt.sign({ username: result.dbEmail, userrole: result.dbRole }, SecretKey, { expiresIn: '1h' })
-                console.log("Token:", token);
-                res.cookie('AuthToken', token, {
-                    httpOnly: true
-                })
-                res.status(200).json({ message: "Success" })
-                console.log("Login successfull");
-            }
-            else {
-                res.status(404).json({ message: "Incorrect credentials" })
-                console.log("Please check your credentials");
-            }
-        }
-        else {
-            res.status(404).json({ message: "New User" })
-            console.log("Please register");
-        }
-    }
-    catch (error) {
-        res.status(404).json(error)
-        console.log(error);
-    }
-})
+//             const isvalid = await bcrypt.compare(Password, result.dbPassword)
+//             if (isvalid) {
+//                 const token = jwt.sign({ username: result.dbEmail, userrole: result.dbRole }, SecretKey, { expiresIn: '1h' })
+//                 console.log("Token:", token);
+//                 res.cookie('AuthToken', token, {
+//                     httpOnly: true
+//                 })
+//                 res.status(200).json({ message: "Success" })
+//                 console.log("Login successfull");
+//             }
+//             else {
+//                 res.status(404).json({ message: "Incorrect credentials" })
+//                 console.log("Please check your credentials");
+//             }
+//         }
+//         else {
+//             res.status(404).json({ message: "New User" })
+//             console.log("Please register");
+//         }
+//     }
+//     catch (error) {
+//         res.status(404).json(error)
+//         console.log(error);
+//     }
+// })
 
 //Start Quiz
 playerroute.post('/startQuiz', authenticate, async (req, res) => {

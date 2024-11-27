@@ -1,6 +1,7 @@
 import express, { json } from "express";
 import { adminroute } from './Routes/adminroute.js';
 import { playerroute } from "./Routes/playerroute.js";
+import { loginroute } from "./Routes/loginroute.js";
 import dotenv from 'dotenv';
 dotenv.config();
 import cors from 'cors'
@@ -13,6 +14,7 @@ app.use(cors({
 }))
 
 app.use(json());
+app.use('/', loginroute)
 app.use('/', adminroute)
 app.use('/', playerroute)
 

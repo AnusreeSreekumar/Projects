@@ -17,12 +17,16 @@ const authenticate = (req, res, next) => {
     for(const cooky of cookie) {
         
         const [name, token] = cooky.trim().split('=');
+        console.log('name: ', name.toLowerCase());
+        
         if (name.toLowerCase() === 'authtoken') {
             const tokenverifcn = jwt.verify(token, SecretKey)
             // console.log("Token in Authfile: ", tokenverifcn);
             req.UserName = tokenverifcn.username;
             req.UserRole = tokenverifcn.userrole;
-
+            // console.log('UserName: ',req.UserName);
+            // console.log('UserRole: ',req.UserRole);
+            
             break;
         }
     };
