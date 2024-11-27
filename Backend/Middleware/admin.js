@@ -1,15 +1,6 @@
 import mongoose from "mongoose";
 import bcrypt from 'bcrypt';
-
-//User schema
-const adminSchema = new mongoose.Schema({
-    dbUsername: { type: String, unique: true, required: true },
-    dbEmail: { type: String, unique: true, required: true },
-    dbPassword: { type: String, required: true },
-    dbRole: { type: String, required: true }
-})
-
-const Admin = mongoose.model('admindetails', adminSchema)
+import Admin from "../Models/adminSet";
 
 mongoose.connect('mongodb://localhost:27017/TriviaHub')
 
@@ -40,4 +31,6 @@ const createAdmin = async () => {
     }
   };
   
-  createAdmin();
+  // createAdmin();
+
+  export default createAdmin;

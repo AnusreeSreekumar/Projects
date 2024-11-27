@@ -1,8 +1,8 @@
 import React from 'react'
-import Home from './pages/Home'
+import Home from './pages/playerPages/Home'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Authentication from './pages/Authentication';
-import Dashboard from './pages/Dashboard'
+import Authentication from './pages/playerPages/Authentication';
+import Dashboard from './pages/playerPages/Dashboard'
 
 const App = () => {
   return (

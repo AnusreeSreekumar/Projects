@@ -65,7 +65,7 @@ function Authentication() {
         };
         try {
             
-            const response = await fetch('http://localhost:3000/login_admin', {
+            const response = await fetch('http://localhost:3000/login_user', {
 
                 method: 'POST',
                 credentials: 'include',

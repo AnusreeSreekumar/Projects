@@ -211,7 +211,7 @@ playerroute.patch('/submit-quiz', authenticate, async (req, res) => {
                     await player.save();
                     console.log(`Updated details for ${playerId}:`, player);
                 }
-                return res.status(200).json({ message: `${playerId} is updated with Score details` });                
+                return res.status(200).json({ message: `${playerId} is updated with Score details` });
             }
         }
         else {
@@ -226,6 +226,8 @@ playerroute.patch('/submit-quiz', authenticate, async (req, res) => {
 //To GET the Score details
 playerroute.get('/dashboard', authenticate, async (req, res) => {
 
+    console.log('Logging of Dashboard Route starts here.....');
+
     const loginRole = req.UserRole;
     console.log("Role:", loginRole);
 
@@ -237,27 +239,31 @@ playerroute.get('/dashboard', authenticate, async (req, res) => {
 
             // Fetch the player by ID
             const player = await Player.findOne({ dbEmail: playerId })
-            console.log(player);
+            console.log('Existing Player data: ', player);
+
+            // console.log('Data retrieved from DB');            
 
             if (!player) {
                 return res.status(404).json({ message: 'Player not found' });
             }
             else {
 
-                // Prepare the data for the dashboard
-                const dashboardData = {
-                    totalScore: player.dbTotalScore || 0,
-                    quizHistory: player.dbQuizHistory.map(history => ({
-                        categoryId: history.categoryId,
-                        score: history.score,
-                        date: history.date
-                    }))
-                };
+                const categoryIds = player.dbQuizHistory.map(history => history.categoryId);
+                // console.log(categoryIds);
+                categoryIds.forEach(async (categoryIds) => {
+                    
+                    const questionSet = await QuestionSet.findOne({dbquizId : categoryIds})
+                    // console.log(questionSet);
+                    res.status(200).json({
+                        message: 'Dashboard data retrieved successfully',
+                        data: {
+                            player: player, 
+                            questionSet: questionSet 
+                        }
+                    })
+                })
+                console.log('Data send to frontend');
 
-                res.status(200).json({
-                    message: 'Dashboard data retrieved successfully',
-                    data: dashboardData
-                });
             }
         }
     }

@@ -7,14 +7,12 @@ import mongoose from "mongoose";
 import { QuizCatgry } from "../Models/quizCatgry.js";
 import { QuestionSet } from "../Models/questionSet.js";
 import { authenticate } from "../Middleware/auth.js";
-// import { Player } from "../Models/playerSet.js";
+import Admin from "../Models/adminSet.js";
 // import { quizEventEmitter } from "../quizEvents.js";
 
 dotenv.config();
 const adminroute = Router();
 const SecretKey = process.env.secretKey
-
-
 
 adminroute.get('/', (req, res) => {
 
@@ -24,11 +22,13 @@ adminroute.get('/', (req, res) => {
 //Admin Login
 adminroute.post('/login_admin', async (req, res) => {
 
-    try {
+    // try {
 
         const { Email, Password } = req.body
 
         const result = await Admin.findOne({ dbEmail: Email })
+        console.log(result);
+        
         if (result) {
 
             const isvalid = await bcrypt.compare(Password, result.dbPassword)
@@ -53,11 +53,11 @@ adminroute.post('/login_admin', async (req, res) => {
             res.status(404).json({ message: "Not authorised" })
             console.log("Not authorised");
         }
-    }
-    catch (error) {
-        res.status(404).json(error)
-        console.log('Error occurred while login');
-    }
+    // }
+    // catch (error) {
+    //     res.status(404).json(error)
+    //     console.log('Error occurred while login');
+    // }
 })
 
 //Admin Dashboard - Add Quiz topic
@@ -118,7 +118,32 @@ adminroute.post('/addquiztopic', authenticate, async (req, res) => {
     catch (error) {
         console.log(error);
     }
-})
+});
+
+//Retrieving categories from DB
+
+adminroute.get('/getcategories', authenticate, async (req, res) => {
+    const loginRole = req.UserRole; // Extract role from the middleware
+    try {
+        if (loginRole === 'Admin') {
+
+            const categories = await QuizCatgry.find({}, 'dbCategoryType dbCategorySet dbTitle dbDescription');
+            
+            if (categories.length === 0) {
+                return res.status(404).json({ message: 'No categories found' });
+            }
+            res.status(200).json({ categories });
+            console.log('Categories fetched');
+            
+        } else {
+            res.status(403).json({ message: 'Access denied. Admins only.' });
+        }
+    } catch (error) {
+        console.error('Error fetching quiz categories:', error);
+        res.status(500).json({ message: 'Failed to fetch quiz categories' });
+    }
+});
+
 
 //Add questions
 adminroute.post('/addquestionset/:categoryId', authenticate, async (req, res) => {
