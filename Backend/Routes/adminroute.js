@@ -7,69 +7,19 @@ import mongoose from "mongoose";
 import { QuizCatgry } from "../Models/quizCatgry.js";
 import { QuestionSet } from "../Models/questionSet.js";
 import { authenticate } from "../Middleware/auth.js";
-import { Player } from "../Models/playerSet.js";
-import { quizEventEmitter } from "../quizEvents.js";
+// import { Player } from "../Models/playerSet.js";
+// import { quizEventEmitter } from "../quizEvents.js";
 
 dotenv.config();
 const adminroute = Router();
 const SecretKey = process.env.secretKey
 
-//User schema
-const adminSchema = new mongoose.Schema({
-    dbUsername: String,
-    dbEmail: { type: String, unique: true },
-    dbPassword: String,
-    dbRole: String
-})
 
-const Admin = mongoose.model('admindetails', adminSchema)
-
-mongoose.connect('mongodb://localhost:27017/TriviaHub')
 
 adminroute.get('/', (req, res) => {
 
     res.send("Hello World")
 });
-
-//Admin Signup
-adminroute.post('/signup_admin', async (req, res) => {
-
-    try {
-
-        const data = req.body;
-        const { Username,
-            Email,
-            Password
-        } = data
-        // console.log("Req data:",data);
-
-        const Role = "Admin"
-        const newP = await bcrypt.hash(Password, 10);
-        const existingUser = await Admin.findOne({ dbEmail: Email })
-
-        if (existingUser) {
-
-            res.status(404).json({ message: "Admin exists in DB" })
-            console.log("Admin details already present");
-        }
-        else {
-
-            const newAdmin = new Admin({
-                dbUsername: Username,
-                dbEmail: Email,
-                dbPassword: newP,
-                dbRole: Role
-            })
-            await newAdmin.save();
-            res.status(200).json({ message: "Admin entry created" });
-            console.log("Admin details added to DB");
-        }
-    }
-    catch (error) {
-        console.log(error);
-    }
-
-})
 
 //Admin Login
 adminroute.post('/login_admin', async (req, res) => {
@@ -100,13 +50,13 @@ adminroute.post('/login_admin', async (req, res) => {
             }
         }
         else {
-            res.status(404).json({ message: "New Admin User" })
-            console.log("Please register as Admin");
+            res.status(404).json({ message: "Not authorised" })
+            console.log("Not authorised");
         }
     }
     catch (error) {
         res.status(404).json(error)
-        console.log(error);
+        console.log('Error occurred while login');
     }
 })
 
@@ -235,44 +185,44 @@ adminroute.post('/addquestionset/:categoryId', authenticate, async (req, res) =>
 
 //Score Updation
 
-quizEventEmitter.on('quizCompleted', async (data, callback) => {
+// quizEventEmitter.on('quizCompleted', async (data, callback) => {
 
-    console.log("Event received in admin:", data);
-    const { playerId, categoryId, score } = data;
+//     console.log("Event received in admin:", data);
+//     const { playerId, categoryId, score } = data;
 
-    console.log(`Updating score for Player ID: ${playerId} in Category ID: ${categoryId} with Score: ${score}`);
+//     console.log(`Updating score for Player ID: ${playerId} in Category ID: ${categoryId} with Score: ${score}`);
 
-    try {
+//     try {
 
-        const player = await Player.findOne({ dbUsername: playerId });
-        console.log("Player", player);
+//         const player = await Player.findOne({ dbUsername: playerId });
+//         console.log("Player", player);
 
-        if (!player) {
-            console.log('Player not found');
-        }
-        else {
+//         if (!player) {
+//             console.log('Player not found');
+//         }
+//         else {
 
-            player.dbQuizHistory.push({
-                categoryId: categoryId,
-                score: score,
-                date: new Date()
-            });
-            player.dbScores.push({
-                quizId: categoryId,
-                score: score,
-                date: new Date()
-            });
-            player.dbTotalScore = (player.dbTotalScore || 0) + score;
-            await player.save();
-            console.log('Player score and history updated successfully in admin route!');
-            callback(null, 'Admin update successful');
-        }
-    }
-    catch (error) {
-        console.error('Error updating player data in admin:', error);
-        callback(error);
-    }
-})
+//             player.dbQuizHistory.push({
+//                 categoryId: categoryId,
+//                 score: score,
+//                 date: new Date()
+//             });
+//             player.dbScores.push({
+//                 quizId: categoryId,
+//                 score: score,
+//                 date: new Date()
+//             });
+//             player.dbTotalScore = (player.dbTotalScore || 0) + score;
+//             await player.save();
+//             console.log('Player score and history updated successfully in admin route!');
+//             callback(null, 'Admin update successful');
+//         }
+//     }
+//     catch (error) {
+//         console.error('Error updating player data in admin:', error);
+//         callback(error);
+//     }
+// })
 
 //Delete QuestionSet
 adminroute.delete('/deleteQuestionset/:ObjectId', authenticate, async (req, res) => {

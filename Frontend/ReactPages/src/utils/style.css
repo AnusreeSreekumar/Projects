@@ -1,0 +1,21 @@
+/* Animation for Gradient Background */
+@keyframes gradient-x {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  
+  .animate-gradient-x {
+    animation: gradient-x 5s ease infinite;
+  }
+  
+  /* Fade In Animation */
+  @keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+  
+  .animate-fadeIn {
+    animation: fadeIn 1.5s ease-in-out;
+  }
+  
