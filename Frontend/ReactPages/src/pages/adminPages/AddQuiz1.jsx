@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import quizData from "../../utils/quizData.json"; // Import the file containing questions and difficulty
 
 const AddQuiz = ({ categories }) => {
-  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState([]);
   const [difficulty, setDifficulty] = useState("");
   const [questions, setQuestions] = useState([]);
 
@@ -27,7 +27,7 @@ const AddQuiz = ({ categories }) => {
     const quizDetails = { category: selectedCategory, difficulty, questions };
 
     try {
-      const response = await fetch("http://localhost:3000/add-quiz", {
+      const response = await fetch(`http://localhost:3000/addquestionset/${selectedCategory}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(quizDetails),

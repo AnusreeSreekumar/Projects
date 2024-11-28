@@ -73,6 +73,7 @@ const AddQuiz = () => {
       if (response.ok) {
         alert('Quiz added successfully!');
         setQuestions([{ questionText: '', options: ['', '', '', ''], answer: '' }]);
+        navigate('/questions')
       } else {
         alert(result.message || 'Failed to add quiz.');
       }
