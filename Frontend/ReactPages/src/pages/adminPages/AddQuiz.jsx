@@ -1,180 +1,209 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
+import { useNavigate, Link } from 'react-router-dom';
 
 const AddQuiz = () => {
-  const [categories, setCategories] = useState([]); // To store fetched quiz categories
-  const [selectedCategory, setSelectedCategory] = useState(''); // To track the selected category
-  const [questions, setQuestions] = useState([{ questionText: '', options: ['', '', '', ''], answer: '' }]); // Initial question structure
-  const [difficulty, setDifficulty] = useState('Medium'); // Default difficulty level
-  const [isLoading, setIsLoading] = useState(false); // Loading state
 
-  // Fetch quiz categories from the backend
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [difficulty, setDifficulty] = useState("");
+  const [questions, setQuestions] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isFileUploaded, setIsFileUploaded] = useState(false);
+  const navigate = useNavigate();
+
   useEffect(() => {
     const fetchCategories = async () => {
-      try {
-        const response = await fetch('http://localhost:3000/getcategories'); // Replace with the correct API endpoint
-        const data = await response.json();
-        console.log('result data: ', data);
 
-        setCategories(data.categories || []); // Assuming API returns categories in `data.categories`
-      } catch (error) {
+      try {
+
+        const response = await fetch('http://localhost:3000/getcategories'); // Replace with correct endpoint
+        const data = await response.json();
+        console.log('Fetched data:', data);
+        setCategories(data.categories || []); // Ensure categories is always an array
+      }
+      catch (error) {
         console.error('Error fetching quiz categories:', error);
+        setCategories([]); // Fallback to empty array
       }
     };
 
     fetchCategories();
   }, []);
 
-  // Handle changes in the question input fields
+  // Handle file input change
+  const handleFileChange = (e) => {
+    console.log('Ho');
+    
+    const file = e.target.files[0];
+    if (file && file.type === 'application/json') {
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const parsedData = JSON.parse(reader.result);
+          console.log('Data in File', parsedData);
+
+          // Assuming parsedData has questions, options, and answers
+          if (Array.isArray(parsedData.questions) && parsedData.questions.length > 0) {
+            setQuestions(parsedData.questions); // Set questions state if valid
+          } else {
+            setQuestions([]); // If no questions are found, set an empty array
+          }
+          setDifficulty(parsedData.difficulty || '');
+          setIsFileUploaded(true);
+        } catch (error) {
+          console.log('Error parsing the JSON file:', error);
+        }
+      };
+      reader.readAsText(file);
+    } else {
+      alert('Please upload a valid JSON file.');
+    }
+  };
+
+  // Handle question change for the editable fields
   const handleQuestionChange = (index, field, value) => {
     const updatedQuestions = [...questions];
-    if (field === 'questionText') {
-      updatedQuestions[index].questionText = value;
-    } else if (field === 'answer') {
-      updatedQuestions[index].answer = value;
-    } else {
-      updatedQuestions[index].options[field] = value;
-    }
+    updatedQuestions[index][field] = value;
     setQuestions(updatedQuestions);
+    console.log(updatedQuestions);
+    
   };
 
-  // Add a new question
-  const addQuestion = () => {
-    setQuestions([...questions, { questionText: '', options: ['', '', '', ''], answer: '' }]);
-  };
-
-  // Remove a question
-  const removeQuestion = (index) => {
-    setQuestions(questions.filter((_, i) => i !== index));
-  };
-
-  // Handle form submission
+  // Handle the submit action
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!selectedCategory) {
-      alert('Please select a category!');
-      return;
-    }
+
+    const quizDetails = {
+      category: selectedCategory,
+      questions: questions,
+      difficulty: difficulty,
+    };
+
     setIsLoading(true);
 
     try {
       const response = await fetch(`http://localhost:3000/addquestionset/${selectedCategory}`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          category: selectedCategory,
-          questions,
-          difficulty,
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(quizDetails),
       });
 
       const result = await response.json();
+
       if (response.ok) {
-        alert('Quiz added successfully!');
-        setQuestions([{ questionText: '', options: ['', '', '', ''], answer: '' }]);
-        navigate('/questions')
+        // Navigate to the quizsets page after successful submission
+        navigate('/displayquizset');
       } else {
-        alert(result.message || 'Failed to add quiz.');
+        console.error('Error adding quiz:', result.message);
       }
     } catch (error) {
-      console.error('Error adding quiz:', error);
-      alert('An error occurred. Please try again.');
+      console.error('Failed to add quiz:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="w-screen min-h-screen flex flex-col justify-center items-center bg-gradient-to-r from-emerald-300 via-cyan-100 to-sky-200">
-      <div className='bg-lime-100 shadow-md rounded-lg py-8 px-10 max-w-7xl sm:w-96'>
-        <h2 className="form-title text-center mb-6 font-bold text-2xl text-purple-600">Add Quiz</h2>
-        <form onSubmit={handleSubmit} className="quiz-form">
-          {/* Category Selection */}
-          <div className="form-group">
-            <label htmlFor="category" className="form-label">Select Category:</label>
-            <select
-              id="category"
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="form-select mb-4 ml-4 w-64 h-8"
-            >
-              <option value="">-- Select a Category --</option>
-              {categories.map((category) => (
-                <option key={category._id} value={category._id}>
-                  {category.dbTitle}
-                </option>
-              ))}
-            </select>
-          </div>
+    <div className="w-screen min-h-screen flex flex-col justify-center items-center">
+      {/* <div className='bg-lime-100 shadow-md rounded-lg py-8 px-10 max-w-7xl sm:w-96'> */}
+      <h2 className="form-title text-center mb-6 font-bold text-2xl text-purple-600 mt-8">Add Quiz</h2>
+      <form onSubmit={handleSubmit}>
 
-          {/* Difficulty Selection */}
-          <div className="form-group">
-            <label htmlFor="difficulty" className="form-label">Difficulty Level:</label>
-            <select
-              id="difficulty"
-              value={difficulty}
-              onChange={(e) => setDifficulty(e.target.value)}
-              className="form-select ml-4 w-56 h-8"
-            >
-              <option value="Easy">Easy</option>
-              <option value="Medium">Medium</option>
-              <option value="Hard">Hard</option>
-            </select>
-          </div>
+        {/* File Upload for JSON */}
+        <div>
+          <label htmlFor="jsonFile">Upload JSON File:</label>
+          <input
+            type="file"
+            accept=".json"
+            onChange={handleFileChange}
+            className="file-input mb-4 ml-4"
+          />
+        </div>
 
-          {/* Questions Section */}
-          <h3 className="questions-title text-center mr-10 font-semibold my-4">Questions</h3>
-          {questions.map((question, index) => (
-            <div key={index} className="question-group">
-              <label className="question-label">Question {index + 1}</label>
-              <input
-                type="text"
-                placeholder="Enter question text"
-                value={question.questionText}
-                onChange={(e) => handleQuestionChange(index, 'questionText', e.target.value)}
-                className="question-input border border-black border-2 w-72 h-12 mb-4"
-              />
-
-              <div className="options-container">
-                {question.options.map((option, optionIndex) => (
-                  <input
-                    key={optionIndex}
-                    type="text"
-                    placeholder={`Option ${optionIndex + 1}`}
-                    value={option}
-                    onChange={(e) => handleQuestionChange(index, optionIndex, e.target.value)}
-                    className="option-input border border-2 w-72 h-12 mb-4"
-                  />
+        {isFileUploaded && (
+          <>
+            {/* Category Selection */}
+            <div>
+              <label htmlFor="category">Select Category:</label>
+              <select
+                id="category"
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="form-select mb-4 ml-4 w-64 h-10"
+              >
+                <option value="">-- Select a Category --</option>
+                {Array.isArray(categories) && categories.map((category) => (
+                  <option key={category._id} value={category._id}>
+                    {category.dbTitle}
+                  </option>
                 ))}
-              </div>
+              </select>
+            </div>
 
+            {/* Difficulty */}
+            <div>
+              <label htmlFor="difficulty">Difficulty Level:</label>
               <input
                 type="text"
-                placeholder="Correct Answer"
-                value={question.answer}
-                onChange={(e) => handleQuestionChange(index, 'answer', e.target.value)}
-                className="answer-input border border-2 w-72 h-12 mb-4"
+                id="difficulty"
+                value={difficulty}
+                readOnly // Automatically filled
+                className="ml-4"
               />
-
-              <button type="button" onClick={() => removeQuestion(index)} className="remove-btn w-36 h-8 rounded-md bg-blue-400 mb-4 hover:bg-blue-200">
-                Remove Question
-              </button>
             </div>
-          ))}
 
-          <button type="button" onClick={addQuestion} className="add-btn w-44 h-8 rounded-md bg-gray-400 mr-6 hover:bg-gray-300">
-            Add Another Question
-          </button>
+            {/* Questions */}
+            <h3 className="questions-title text-center mr-10 font-semibold my-4">Questions</h3>
+            {questions.map((question, index) => (
+              <div key={index} className="question">
+                <label>Question {index + 1}:</label>
+                <input
+                  type="text"
+                  value={question.questionText || ''}
+                  onChange={(e) => handleQuestionChange(index, "questionText", e.target.value)}
+                  className="question-input border ml-2 h-10 w-[550px] mb-4"
+                />
+                <div className="options">
+                  <label>Options:</label>
+                  {Array.isArray(question.options) && question.options.map((option, optionIndex) => (
+                    <input
+                      key={optionIndex}
+                      type="text"
+                      placeholder={`Option ${optionIndex + 1}`}
+                      value={option || ''}
+                      onChange={(e) =>
+                        handleQuestionChange(index, "options", [
+                          ...question.options.slice(0, optionIndex),
+                          e.target.value,
+                          ...question.options.slice(optionIndex + 1),
+                        ])
+                      }
+                      className="option-input border w-auto p-2 h-8 mb-4 ml-4"
+                    />
+                  ))}
+                </div>
+                <label>Correct Answer</label>
+                <input
+                  type="text"
+                  placeholder="Correct Answer:"
+                  value={question.answer || ''}
+                  onChange={(e) => handleQuestionChange(index, "answer", e.target.value)}
+                  className="answer-input border w-fit h-6 mb-4 ml-4"
+                />
+              </div>
+            ))}
 
-          <button type="submit" disabled={isLoading} className="submit-btn w-20 h-8 rounded-md bg-gray-400 hover:bg-gray-300">
-            {isLoading ? 'Adding...' : 'Submit'}
-          </button>
-        </form>
-      </div>
+            <button type="submit" disabled={isLoading} className=" mt-6 submit-btn w-20 h-8 rounded-md bg-gray-400 hover:bg-gray-300">
+              {isLoading ? 'Adding...' : 'Submit'}
+            </button>
 
+          </>
+        )}
+
+      </form>
+      {/* </div> */}
     </div>
-  )
+  );
 };
 
 export default AddQuiz;

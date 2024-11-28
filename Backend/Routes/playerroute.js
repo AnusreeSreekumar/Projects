@@ -228,7 +228,7 @@ playerroute.get('/dashboard', authenticate, async (req, res) => {
 
     console.log('Logging of Dashboard Route starts here.....');
 
-    const loginRole = req.UserRole;
+    const loginRole = req.Userrole;
     console.log("Role:", loginRole);
 
     try {

@@ -3,34 +3,34 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const SecretKey = process.env.secretKey
+const SecretKey = process.env.secretKey;
 
 const authenticate = (req, res, next) => {
+    const token = req.cookies.AuthToken; // Retrieve token from cookies
+    console.log('All cookies from req: ', req.cookies); // Debugging all cookies
+    console.log('AuthToken: ', token); // Debugging the token specifically
 
-    const cookies = req.headers.cookie;
-    // req.cookies
-    console.log('cookies from req: ',cookies);
+    if (!token) {
+        console.log('No AuthToken found in cookies');
+        return res.status(403).json({ message: 'Authentication token not found' });
+    }
 
-    const cookie = cookies.split(';');
-    console.log('Splitted cookie: ', cookie);
-    
-    for(const cooky of cookie) {
-        
-        const [name, token] = cooky.trim().split('=');
-        console.log('name: ', name.toLowerCase());
-        
-        if (name.toLowerCase() === 'authtoken') {
-            const tokenverifcn = jwt.verify(token, SecretKey)
-            // console.log("Token in Authfile: ", tokenverifcn);
-            req.UserName = tokenverifcn.username;
-            req.UserRole = tokenverifcn.userrole;
-            // console.log('UserName: ',req.UserName);
-            // console.log('UserRole: ',req.UserRole);
-            
-            break;
-        }
-    };
-    next();
-}
+    try {
+        // Verify the token
+        const tokenVerification = jwt.verify(token, SecretKey);
 
-export { authenticate }
+        // Attach user details to the request object
+        req.username = tokenVerification.username;
+        req.userrole = tokenVerification.userrole;
+
+        console.log('Verified Username: ', req.username);
+        console.log('Verified Role: ', req.userrole);
+
+        next(); // Proceed to the next middleware/route
+    } catch (error) {
+        console.error('Error verifying token: ', error.message);
+        return res.status(403).json({ message: 'Invalid or expired token' });
+    }
+};
+
+export { authenticate };

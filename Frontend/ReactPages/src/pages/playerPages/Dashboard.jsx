@@ -28,9 +28,9 @@ const Dashboard = () => {
                     const userData = result.data.player; // Access the "data" key
                     console.log('Dashboard Data:', userData);
 
-                    // setPlayerData(dashboardData);
-                    // setQuizHistoryLength(dashboardData.dbQuizHistory?.length || 0);
-                    // setTotalScore(dashboardData.dbTotalScore || 0);
+                    setPlayerData(userData);
+                    setQuizHistoryLength(dashboardData.dbQuizHistory?.length || 0);
+                    setTotalScore(dashboardData.dbTotalScore || 0);
                 } catch (error) {
                     console.error('Error fetching user data:', error);
                 } finally {

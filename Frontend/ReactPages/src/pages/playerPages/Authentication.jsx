@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom'; // Import useNavigate for React Router v6
-import getUserType from '../../utils/auth'
+import checkAuth from '../../utils/checkAuth'
 
 function Authentication() {
 
@@ -82,8 +82,9 @@ function Authentication() {
                 setEmail('');
                 setPassword('');
                 console.log(data);
-                navigate('/addQuiz')
-                // setUserRole(getUserType());
+                // navigate('/addQuiz')
+                checkAuth();
+                setUserRole(getUserType());
 
                 // Navigate based on role
                 // if (userRole === 'admin') {

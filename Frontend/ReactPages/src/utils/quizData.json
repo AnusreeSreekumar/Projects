@@ -2,34 +2,39 @@
     "difficulty": "Easy",
     "questions": [
       {
-        "questionText": "What is the value of 7 × 8?",
-        "options": ["54", "56", "64", "49"],
-        "answer": "56"
+        "questionText": "Who painted the Mona Lisa?",
+        "options": ["Vincent van Gogh", "Leonardo da Vinci", "Pablo Picasso", "Michelangelo"],
+        "answer": "Leonardo da Vinci"
       },
       {
-        "questionText": "What is the square root of 144?",
-        "options": ["10", "11", "12", "14"],
-        "answer": "14"
+        "questionText": "What are the primary colors in art?",
+        "options": ["Red, Yellow, Blue", "Red, Green, Blue", "Orange, Purple, Green", "Black, White, Gray"],
+        "answer": "Red, Yellow, Blue"
       },
       {
-        "questionText": "If a triangle has sides of lengths 3 cm, 4 cm, and 5 cm, what type of triangle is it?",
-        "options": ["Scalene", "Equilateral", "Isosceles", "Right-Angled"],
-        "answer": "Right-Angled"
+        "questionText": "What is the term for a drawing or painting of a person?",
+        "options": ["Landscape", "Portrait", "Still Life", "Abstract"],
+        "answer": "Portrait"
       },
       {
-        "questionText": "What is 25% of 200?",
-        "options": ["25", "50", "75", "100"],
-        "answer": "50"
+        "questionText": "Which famous artist is known for cutting off part of his ear?",
+        "options": ["Claude Monet", "Vincent van Gogh", "Salvador Dalí", "Henri Matisse"],
+        "answer": "Vincent van Gogh"
       },
       {
-        "questionText": "What is the value of (3 + 5) × 2?",
-        "options": ["13", "14", "16", "18"],
-        "answer": "16"
+        "questionText": "What type of paint is made by mixing pigment with water?",
+        "options": ["Acrylic", "Watercolor", "Oil Paint", "Gouache"],
+        "answer": "Watercolor"
       },
       {
-        "questionText": "Which of the following numbers is a prime number?",
-        "options": ["21", "31", "33", "35"],
-        "answer": "31"
+        "questionText": "Which famous sculpture was created by Michelangelo?",
+        "options": ["The Thinker", "Venus de Milo", "David", "The Kiss"],
+        "answer": "David"
+      },
+      {
+        "questionText": "What is the term for an artist's workshop or studio?",
+        "options": ["Atelier", "Gallery", "Easel", "Studio"],
+        "answer": "Atelier"
       }
     ]
   }
