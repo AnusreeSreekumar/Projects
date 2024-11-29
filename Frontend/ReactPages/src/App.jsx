@@ -5,8 +5,10 @@ import Authentication from './pages/playerPages/Authentication';
 import Dashboard from './pages/playerPages/Dashboard'
 import AdminDashboard from './pages/adminPages/AdminDashboard';
 import AddQuiz from './pages/adminPages/AddQuiz';
-import DisplayQuizSet from './pages/adminPages/DisplayQuizSet';
+import DisplayQuizSet from './pages/adminPages/AdminQuizTopics';
 import QuizDetailsPage from './pages/adminPages/QuizDetailsPage';
+import QuizTopics from './pages/playerPages/QuizTopics';
+import TakeQuiz from './pages/playerPages/TakeQuiz';
 
 const App = () => {
 
@@ -22,7 +24,9 @@ const App = () => {
         <Route path='/admin-dashboard' element={<AdminDashboard />} />
         <Route path='/addQuiz' element={<AddQuiz />} />
         <Route path='/displayquizset' element={<DisplayQuizSet />} />
+        <Route path='/quiztopics' element={<QuizTopics />} />
         <Route path='/quizdetails/:quizId' element={<QuizDetailsPage />} />
+        <Route path='/takequiz/:quizId' element={<TakeQuiz />} />
       </Routes>
 
     </Router>

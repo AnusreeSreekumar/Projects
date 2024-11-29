@@ -1,12 +1,10 @@
 import { Router } from "express";
-import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
-import jwt from 'jsonwebtoken';
-
 import { QuizCatgry } from "../Models/quizCatgry.js";
 import { QuestionSet } from "../Models/questionSet.js";
 import { authenticate } from "../Middleware/auth.js";
-import Admin from "../Models/adminSet.js";
+
+
 // import { quizEventEmitter } from "../quizEvents.js";
 
 dotenv.config();
@@ -132,7 +130,6 @@ adminroute.get('/getcategories', async (req, res) => {
         res.status(500).json({ message: 'Failed to fetch quiz categories' });
     }
 });
-
 
 //Add questions
 adminroute.post('/addquestionset/:categoryId', async (req, res) => {

@@ -5,13 +5,10 @@ import checkAuth from '../../utils/checkAuth'
 function Authentication() {
 
     const [activeTab, setActiveTab] = useState('signup'); // State to track active form (sign-up or login)
-    const navigate = useNavigate(); // Hook to handle redirection after login
-
     const [Username, setUsername] = useState('');
     const [Email, setEmail] = useState('');
     const [Password, setPassword] = useState('');
-
-    const [userRole, setUserRole] = useState(null);
+    const navigate = useNavigate();
 
     // Function to switch between tabs
     const handleTabChange = (tab) => {
@@ -77,21 +74,26 @@ function Authentication() {
                 body: JSON.stringify(loginDtls)
             });
             const data = await response.json();
-
-            if (response.status == 200) {
+            console.log(data);
+            
+            if (response.ok) {
                 setEmail('');
                 setPassword('');
                 console.log(data);
-                // navigate('/addQuiz')
-                checkAuth();
-                setUserRole(getUserType());
-
-                // Navigate based on role
-                // if (userRole === 'admin') {
-                //     navigate('/admin-dashboard');
-                // } else if (userRole === 'User') {
-                //     navigate('/dashboard');
-                // }
+                try {
+                    const authData = await checkAuth();
+                    console.log('Auth Data:', authData);
+                    if(authData.role == 'User'){
+                        // navigate('/player-dashboard')
+                        navigate('/quiztopics')
+                    }
+                    else if(authData.role == 'admin'){
+                        navigate('/admin-dashboard')
+                    }
+                    
+                } catch (err) {
+                    console.error('Auth error:', err);
+                }
             }
             else {
                 console.log('Please check your credentials');

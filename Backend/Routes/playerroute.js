@@ -56,46 +56,66 @@ playerroute.post('/signup_user', async (req, res) => {
 
 })
 
-//User login
-// playerroute.post('/login_user', async (req, res) => {
+playerroute.get('/displayquizset', authenticate, async (req, res) => {
 
-//     try {
+    const loginRole = req.userrole;
+    try {
 
-//         const { Email, Password } = req.body
+        if (loginRole == 'User') {
 
-//         const result = await Player.findOne({ dbEmail: Email })
-//         if (result) {
+            const quizSet = await QuestionSet.find({}, 'dbquizId dbcategory dbdifficulty');
+            const results = [];
+            // console.log('Set is: ',quizSet);
+            for (const cat of quizSet) {
 
-//             const isvalid = await bcrypt.compare(Password, result.dbPassword)
-//             if (isvalid) {
-//                 const token = jwt.sign({ username: result.dbEmail, userrole: result.dbRole }, SecretKey, { expiresIn: '1h' })
-//                 console.log("Token:", token);
-//                 res.cookie('AuthToken', token, {
-//                     httpOnly: true
-//                 })
-//                 res.status(200).json({ message: "Success" })
-//                 console.log("Login successfull");
-//             }
-//             else {
-//                 res.status(404).json({ message: "Incorrect credentials" })
-//                 console.log("Please check your credentials");
-//             }
-//         }
-//         else {
-//             res.status(404).json({ message: "New User" })
-//             console.log("Please register");
-//         }
-//     }
-//     catch (error) {
-//         res.status(404).json(error)
-//         console.log(error);
-//     }
-// })
+                const quizCount = await QuizCatgry.findOne({ dbTitle: cat.dbcategory }, 'dbNumOfQuestions')
+
+                results.push({
+                    quizId: cat.dbquizId,
+                    category: cat.dbcategory,
+                    difficulty: cat.dbdifficulty,
+                    questionCount: quizCount ? quizCount.dbNumOfQuestions : 0,
+                })
+            }
+            res.status(200).json(results)
+        }
+    }
+    catch (error) {
+        console.log('Error fetching quiz categories:', error);
+        res.status(500).json({ message: 'Failed to fetch quiz set' });
+    }
+})
+
+playerroute.get('/takequiz/:Id', authenticate, async (req, res) => {
+
+    const loginRole = req.userrole;
+    try {
+
+        if (loginRole == 'User') {
+            const quizId = req.params.Id;
+            console.log('Id in req: ', quizId);
+
+            const existingquizSet = await QuestionSet.findOne({ dbquizId: quizId }, 'dbquestions')
+            console.log('Existing QuizSet: ', existingquizSet);
+
+            if (existingquizSet) {
+
+                return res.status(200).json({ existingquizSet })
+            }
+            else {
+                return res.status(404).json({ message: 'No QuizSet found' })
+            }
+        }
+    }
+    catch (error) {
+        console.log('Error occured while fetching Quiz Set');
+    }
+})
 
 //Start Quiz
-playerroute.post('/startQuiz', authenticate, async (req, res) => {
+playerroute.post('/submitquiz', authenticate, async (req, res) => {
 
-    const loginRole = req.UserRole;
+    const loginRole = req.userrole;
     try {
 
         if (loginRole == 'User') {
@@ -155,7 +175,7 @@ playerroute.post('/startQuiz', authenticate, async (req, res) => {
 //Score calculation and DB update:
 playerroute.patch('/submit-quiz', authenticate, async (req, res) => {
 
-    const loginRole = req.UserRole;
+    const loginRole = req.userrole;
     try {
         if (loginRole == 'User') {
 
@@ -228,7 +248,7 @@ playerroute.get('/dashboard', authenticate, async (req, res) => {
 
     console.log('Logging of Dashboard Route starts here.....');
 
-    const loginRole = req.Userrole;
+    const loginRole = req.userrole;
     console.log("Role:", loginRole);
 
     try {
@@ -251,14 +271,14 @@ playerroute.get('/dashboard', authenticate, async (req, res) => {
                 const categoryIds = player.dbQuizHistory.map(history => history.categoryId);
                 // console.log(categoryIds);
                 categoryIds.forEach(async (categoryIds) => {
-                    
-                    const questionSet = await QuestionSet.findOne({dbquizId : categoryIds})
+
+                    const questionSet = await QuestionSet.findOne({ dbquizId: categoryIds })
                     // console.log(questionSet);
                     res.status(200).json({
                         message: 'Dashboard data retrieved successfully',
                         data: {
-                            player: player, 
-                            questionSet: questionSet 
+                            player: player,
+                            questionSet: questionSet
                         }
                     })
                 })

@@ -2,28 +2,15 @@ const checkAuth = async () => {
     try {
         const response = await fetch('http://localhost:3000/check-auth', {
             method: 'GET',
-            credentials: 'include', // Send cookies with the request
+            credentials: 'include',
         });
-
-        if (!response.ok) {
-            throw new Error('Authentication failed');
-        }
-
         const data = await response.json();
-        console.log('User data:', data);
-
-        // Redirect based on role
-        if (data.role === 'admin') {
-            window.location.href = '/admin-dashboard';
-        } else if (data.role === 'User') {
-            window.location.href = '/player-dashboard';
-        }
+        console.log('User data from checkAuth: ', data);
+        return data; // Return data if needed
     } catch (error) {
-        console.error('Error checking authentication:', error);
-        window.location.href = '/login'; // Redirect to login on failure
+        console.error('Error in checkAuth:', error);
+        throw error; // Handle errors appropriately
     }
 };
 
-// Call this function on page load or login
-
-export default checkAuth
+export default checkAuth;
