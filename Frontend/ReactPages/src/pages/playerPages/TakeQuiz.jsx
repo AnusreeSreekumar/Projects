@@ -13,7 +13,9 @@ const TakeQuiz = () => {
     useEffect(() => {
         const fetchQuizDetails = async () => {
             try {
-                const response = await fetch(`http://localhost:3000/takequiz/${quizId}`);
+                const response = await fetch(`http://localhost:3000/takequiz/${quizId}`,{
+                    credentials: 'include'
+                });
                 const data = await response.json();
                 console.log('Retrieved data: ', data);
                 setQuestionSet(data.existingquizSet.dbquestions || []);
@@ -60,12 +62,12 @@ const TakeQuiz = () => {
     const currentQuestion = questionSet[currentQuestionIndex];
 
     return (
-        <div className="quiz-container">
+        <div className="quiz-container w-96 h-auto bg-gray-200 mt-[150px] ml-[500px] drop-shadow-xl">
             <div className="question-card">
-                <h2>{currentQuestion.questionText}</h2>
-                <div className="options">
+                <h2 className='mb-8 p-4 text-4xl font-medium'>{currentQuestion.questionText}</h2>
+                <div className="options p-4">
                     {currentQuestion.options.map((option, index) => (
-                        <div key={index}>
+                        <div key={index} className='space-x-4 ml-16 mb-4'>
                             <input
                                 type="radio"
                                 id={`option-${index}`}
@@ -78,19 +80,22 @@ const TakeQuiz = () => {
                         </div>
                     ))}
                 </div>
-                <div className="navigation-buttons">
+                <div className="navigation-buttons space-x-8 ml-16 pb-4">
                     <button
                         onClick={handlePrevious}
                         disabled={currentQuestionIndex === 0}
+                        className='w-24 h-auto bg-cyan-400 rounded-md hover:text-white'
                     >
                         Previous
                     </button>
                     {quizCompleted ? (
-                        <button onClick={handleSubmit}>Submit</button>
+                        <button onClick={handleSubmit} className='w-20 h-auto bg-cyan-400 rounded-md hover:text-white'>
+                            Submit</button>
                     ) : (
                         <button
                             onClick={handleNext}
                             disabled={selectedOptions[currentQuestionIndex] == null}
+                            className='w-20 h-auto bg-cyan-400 rounded-md hover:text-white'
                         >
                             Next
                         </button>

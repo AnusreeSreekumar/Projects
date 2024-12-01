@@ -83,11 +83,11 @@ function Authentication() {
                 try {
                     const authData = await checkAuth();
                     console.log('Auth Data:', authData);
-                    if(authData.role == 'User'){
+                    if(authData.loginRole == 'User'){
                         // navigate('/player-dashboard')
                         navigate('/quiztopics')
                     }
-                    else if(authData.role == 'admin'){
+                    else if(authData.loginRole == 'admin'){
                         navigate('/admin-dashboard')
                     }
                     

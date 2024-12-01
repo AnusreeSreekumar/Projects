@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import Admin from "../Models/adminSet.js";
 import { Player } from "../Models/playerSet.js";
+import { authenticate } from "../Middleware/auth.js";
 
 const loginroute = Router();
 const SecretKey = process.env.secretKey
@@ -66,6 +67,20 @@ loginroute.post('/login', async (req, res) => {
     catch (error) {
         res.status(404).json(error)
         console.log('Error occurred while login');
+    }
+})
+
+loginroute.get('/check-auth', authenticate, (req,res) => {
+
+    try{
+
+        const loginRole = req.userrole
+        res.status(200).json({loginRole})
+    }
+    catch(error){
+
+        console.log('Issue in verifying');
+        
     }
 })
 
