@@ -13,7 +13,7 @@ const TakeQuiz = () => {
     useEffect(() => {
         const fetchQuizDetails = async () => {
             try {
-                const response = await fetch(`http://localhost:3000/takequiz/${quizId}`,{
+                const response = await fetch(`http://localhost:4000/takequiz/${quizId}`,{
                     credentials: 'include'
                 });
                 const data = await response.json();
@@ -51,11 +51,21 @@ const TakeQuiz = () => {
     };
 
     // Handle quiz submission
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         // Submit the answers to the backend or handle locally
         console.log('Submitting answers:', selectedOptions);
         setQuizCompleted(true); // Disable further navigation
+
+        // const response = await fetch('http://localhost:3000/submit-quiz', {
+
+        //     method: 'PATCH',
+        //     credentials: 'include',
+        //     headers: {'Content Type' : 'application/json'},
+        //     body: json
+        // })
     };
+
+    
 
     if (questionSet.length === 0) return <div>Loading...</div>;
 

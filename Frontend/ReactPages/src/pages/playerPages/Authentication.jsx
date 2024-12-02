@@ -26,7 +26,7 @@ function Authentication() {
             Password
         };
         try {
-            const response = await fetch('http://localhost:3000/signup_user', {
+            const response = await fetch('http://localhost:4000/signup_user', {
 
                 method: 'POST',
                 credentials: 'include',
@@ -66,7 +66,7 @@ function Authentication() {
         };
         try {
 
-            const response = await fetch('http://localhost:3000/login', {
+            const response = await fetch('http://localhost:4000/login', {
 
                 method: 'POST',
                 credentials: 'include',

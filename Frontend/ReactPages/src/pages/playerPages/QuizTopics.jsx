@@ -8,7 +8,7 @@ const QuizTopics = () => {
     useEffect(() => {
         const fetchQuiz = async () => {
             try {
-                const res = await fetch('http://localhost:3000/displayquizset');
+                const res = await fetch('http://localhost:4000/displayquizset');
                 const data = await res.json();
                 console.log(data);
                 setQuizSet(data);

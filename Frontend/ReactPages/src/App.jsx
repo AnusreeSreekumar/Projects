@@ -1,9 +1,9 @@
 import React from 'react'
-import Home from './pages/playerPages/Home'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Home from './components/Home'
 import Authentication from './pages/playerPages/Authentication';
 import Dashboard from './pages/playerPages/Dashboard'
-import AdminDashboard from './pages/adminPages/AdminDashboard';
+import AdminDashboard from './pages/adminPages/AdmiHome';
 import AddQuiz from './pages/adminPages/AddQuiz';
 import DisplayQuizSet from './pages/adminPages/AdminQuizTopics';
 import QuizDetailsPage from './pages/adminPages/QuizDetailsPage';

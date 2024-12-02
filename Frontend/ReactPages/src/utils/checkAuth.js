@@ -1,6 +1,6 @@
 const checkAuth = async () => {
     try {
-        const response = await fetch('http://localhost:3000/check-auth', {
+        const response = await fetch('http://localhost:4000/check-auth', {
             method: 'GET',
             credentials: 'include',
         });

@@ -7,7 +7,7 @@ const SecretKey = process.env.secretKey;
 
 const authenticate = (req, res, next) => {
     const token = req.cookies.AuthToken; // Retrieve token from cookies
-    console.log('All cookies from req: ', req.cookies); // Debugging all cookies
+    console.log('All cookies from req(backend): ', req.cookies); // Debugging all cookies
     console.log('AuthToken: ', token); // Debugging the token specifically
 
     if (!token) {
@@ -22,9 +22,6 @@ const authenticate = (req, res, next) => {
         // Attach user details to the request object
         req.username = tokenVerification.username;
         req.userrole = tokenVerification.userrole;
-
-        console.log('Verified Username: ', req.username);
-        console.log('Verified Role: ', req.userrole);
 
         next(); // Proceed to the next middleware/route
     } catch (error) {

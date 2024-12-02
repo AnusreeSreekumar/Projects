@@ -75,7 +75,8 @@ loginroute.get('/check-auth', authenticate, (req,res) => {
     try{
 
         const loginRole = req.userrole
-        res.status(200).json({loginRole})
+        const loginName = req.username
+        res.status(200).json({loginRole, loginName})
     }
     catch(error){
 
@@ -83,5 +84,11 @@ loginroute.get('/check-auth', authenticate, (req,res) => {
         
     }
 })
+
+loginroute.get("/logout", (req, res) => {
+    res.clearCookie("Authtoken");
+    res.status(200).send("Logout successful");
+    return res;
+  });
 
 export { loginroute}
