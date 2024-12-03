@@ -42,6 +42,7 @@ const AdminDashboard = () => {
 
   return (
     <>
+      {/* <AdminDashboard /> */}
       <h1 className='text-center mt-8 font-semibold text-4xl text-green-800'>Admin Dashboard</h1>
       <div className="container mt-8 ml-8 w-screen py-2 flex flex-row gap-10">
         <div className="bg-purple-100 px-6 py-8 mb-4 shadow-md rounded-md border">

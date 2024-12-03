@@ -74,20 +74,17 @@ function Authentication() {
                 body: JSON.stringify(loginDtls)
             });
             const data = await response.json();
-            console.log(data);
+            console.log('Data from backend: ',data);
             
             if (response.ok) {
                 setEmail('');
                 setPassword('');
                 console.log(data);
                 try {
-                    const authData = await checkAuth();
-                    console.log('Auth Data:', authData);
-                    if(authData.loginRole == 'User'){
-                        // navigate('/player-dashboard')
-                        navigate('/quiztopics')
+                    if(data.role == 'User'){
+                        navigate('/player-dashboard')
                     }
-                    else if(authData.loginRole == 'admin'){
+                    else if(data.role == 'admin'){
                         navigate('/admin-dashboard')
                     }
                     

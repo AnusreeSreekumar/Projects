@@ -5,12 +5,14 @@ const Logout = () => {
     const navigate = useNavigate();
 
     const handleLogout = async () => {
-        await fetch('http://localhost:4000/logout',{
+        const response = await fetch('http://localhost:4000/logout',{
             method: 'GET',
             credentials: 'include',
         });
-        document.cookie = 'Authtoken=; Max-Age=0';
-        navigate('/');
+        if(response.status == 200){
+          document.cookie = 'Authtoken=; Max-Age=0';
+          navigate('/authenticate');
+        }   
     };
   return (
     <button onClick={handleLogout} className='text-purple-700 hover:underline'>

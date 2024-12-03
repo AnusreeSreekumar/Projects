@@ -1,19 +1,18 @@
-import React from 'react'
-import {Outlet, Navigate} from 'react-router-dom';
+import { Outlet, Navigate } from 'react-router-dom';
 import checkAuth from '../utils/checkAuth';
-import NotFound from '../components/NotFound';
 
 const AuthLayout = () => {
-    const userType = checkAuth();
-    if(userType.loginRole == 'admin'){
+    const userType = checkAuth(); // Assume this retrieves the authenticated user's role
 
-     return <Navigate to='/admin-dashboard' />;
+    if (!userType) {
+        return <Navigate to="/authenticate" replace />; // Redirect to login if not authenticated
     }
-    return <Outlet />
-    else{
 
-      return <NotFound />        
+    if (userType.loginRole !== 'admin') {
+        return <Navigate to="/not-found" replace />; // Redirect unauthorized users
     }
+
+    return <Outlet />; // Render the nested route for admin
 };
 
-export default AuthLayout
+export default AuthLayout;

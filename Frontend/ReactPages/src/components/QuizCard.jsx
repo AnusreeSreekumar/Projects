@@ -4,27 +4,29 @@ import { Link } from 'react-router-dom';
 const QuizCard = ({ quiz, isAdmin }) => {
     return (
         <div
-            key={quiz.dbquizId} // Assuming dbquizId is unique
-            className="bg-purple-100 rounded-md shadow-2xl flex flex-col items-center justify-center mx-5 my-5 py-10 w-60"
+            key={quiz.dbquizId}
+            className="bg-gradient-to-r from-teal-100 to-teal-200 hover:bg-gradient-to-br from-teal-300 to-teal-400 px-6 py-8 rounded-xl shadow-lg hover:shadow-2xl transform transition duration-300 hover:scale-105 flex flex-col items-center justify-between gap-4"
         >
-            <Link to={`/quizdetails/${quiz.quizId}`} className="font-bold text-lg text-purple-900">
+            <Link to={`/questions/${quiz.quizId}`} className="text-2xl font-semibold text-white mb-4 hover:underline">
                 {quiz.category}
             </Link>
-            <p className="text-blue-500 font-semibold group-hover:text-white my-2 mx-5">
-                Difficulty: {quiz.difficulty}
-            </p>
-            <p className="text-black group-hover:text-white my-2 mx-5">
-                Number of Questions: {quiz.questionCount}
-            </p>
-            {!isAdmin && (
-                <Link
-                    to={`/takequiz/${quiz.quizId}`}
-                    className="mt-4 w-32 h-10 p-2 bg-blue-500 rounded-md text-white hover:text-slate-200"
-                >
-                    Take this Quiz
-                </Link>
-            )}
+
+            <div className="text-yellow-500 text-lg font-medium mb-3">
+                <p className="my-2">Difficulty: <span className="font-bold text-white">{quiz.difficulty}</span></p>
+                <p className="my-2">Questions: <span className="font-bold text-white">{quiz.questionCount}</span></p>
+            </div>
+
+            <div className="mt-auto">
+                {!isAdmin && (
+                    <Link
+                        to={`/takequiz/${quiz.quizId}`}
+                        className="px-6 py-2 bg-teal-600 text-white font-semibold text-lg rounded-lg hover:bg-teal-700 transition-colors duration-300 shadow-md focus:outline-none focus:ring-2 focus:ring-teal-400">
+                        Take this Quiz
+                    </Link>
+                )}
+            </div>
         </div>
+
     );
 };
 

@@ -1,19 +1,22 @@
 import React, { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 const TakeQuiz = () => {
 
     const [questionSet, setQuestionSet] = useState([]);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [selectedOptions, setSelectedOptions] = useState([]);
-    const [quizCompleted, setQuizCompleted] = useState(false);
+    // const [score, setScore] = useState(0);
     const { quizId } = useParams();
+    const navigate = useNavigate();
+    const [timeLeft, setTimeLeft] = useState(600);
+    const [quizCompleted, setQuizCompleted] = useState(false);
 
     // Fetch quiz data from the backend when the page loads
     useEffect(() => {
         const fetchQuizDetails = async () => {
             try {
-                const response = await fetch(`http://localhost:4000/takequiz/${quizId}`,{
+                const response = await fetch(`http://localhost:4000/takequiz/${quizId}`, {
                     credentials: 'include'
                 });
                 const data = await response.json();
@@ -23,9 +26,19 @@ const TakeQuiz = () => {
                 console.log('Error fetching quiz data:', error);
             }
         };
-
         fetchQuizDetails();
     }, [quizId]);
+
+    useEffect(() => {
+        if (timeLeft === 0) {
+            handleSubmit(); // Automatically submit when time runs out
+        } else {
+            const timerId = setInterval(() => {
+                setTimeLeft((prevTime) => prevTime - 1);
+            }, 1000);
+            return () => clearInterval(timerId); // Cleanup on component unmount or when time reaches 0
+        }
+    }, [timeLeft]);
 
     // Handle option selection
     const handleOptionChange = (questionIndex, selectedOption) => {
@@ -52,28 +65,45 @@ const TakeQuiz = () => {
 
     // Handle quiz submission
     const handleSubmit = async () => {
-        // Submit the answers to the backend or handle locally
-        console.log('Submitting answers:', selectedOptions);
-        setQuizCompleted(true); // Disable further navigation
 
-        // const response = await fetch('http://localhost:3000/submit-quiz', {
+        const answerSet = selectedOptions;
+        console.log('answerSet',answerSet);
+        
+        const calcScoreData = {
+            answerSet,
+            quizId
+        }
 
-        //     method: 'PATCH',
-        //     credentials: 'include',
-        //     headers: {'Content Type' : 'application/json'},
-        //     body: json
-        // })
+        try {
+            const response = await fetch('http://localhost:4000/updatequizscore', {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify(calcScoreData)
+            })
+            const result = await response.json();
+            console.log('Score updated in the database: ', result);
+            navigate(`/fetchScores/${quizId}`)
+            setQuizCompleted(true); // Show result on completion
+        }
+        catch (error) {
+            console.log('Error updating score in database:', error);
+        }
     };
 
-    
-
     if (questionSet.length === 0) return <div>Loading...</div>;
-
-    const currentQuestion = questionSet[currentQuestionIndex];
+      const currentQuestion = questionSet[currentQuestionIndex];
 
     return (
         <div className="quiz-container w-96 h-auto bg-gray-200 mt-[150px] ml-[500px] drop-shadow-xl">
             <div className="question-card">
+                {/* Timer Display */}
+                <div className="timer mb-4 text-2xl font-medium">
+                    <p>Time Left: {Math.floor(timeLeft / 60)}:{timeLeft % 60}</p>
+                </div>
+
                 <h2 className='mb-8 p-4 text-4xl font-medium'>{currentQuestion.questionText}</h2>
                 <div className="options p-4">
                     {currentQuestion.options.map((option, index) => (
@@ -100,7 +130,8 @@ const TakeQuiz = () => {
                     </button>
                     {quizCompleted ? (
                         <button onClick={handleSubmit} className='w-20 h-auto bg-cyan-400 rounded-md hover:text-white'>
-                            Submit</button>
+                            Submit
+                        </button>
                     ) : (
                         <button
                             onClick={handleNext}

@@ -112,79 +112,24 @@ playerroute.get('/takequiz/:Id', authenticate, async (req, res) => {
     }
 })
 
-//Start Quiz
-playerroute.post('/submitquiz', authenticate, async (req, res) => {
-
-    const loginRole = req.userrole;
-    try {
-
-        if (loginRole == 'User') {
-
-            const { playerId, Title } = req.body;
-            const quizCategory = await QuizCatgry.findOne({ dbTitle: Title });
-            console.log("Category", quizCategory);
-
-            if (!quizCategory) {
-                return res.status(404).json({ message: 'Quiz category not found' });
-            }
-            else {
-
-                // Fetch questions from the QuestionSet for the selected category
-                const questionSet = await QuestionSet.findOne({ dbquizId: quizCategory._id }).populate('dbquestions');
-                console.log("Question Set", questionSet);
-
-                if (!questionSet || questionSet.length === 0) {
-                    return res.status(404).json({ message: 'No question set found for this category.' });
-                }
-
-                // Now retrieve the questions from questionSet
-                const questions = questionSet.dbquestions;
-                console.log("Actual Questions", questions);
-
-
-                // Ensure that questions is an array
-                if (!Array.isArray(questions)) {
-                    return res.status(500).json({ message: 'Questions data is not an array.' });
-                }
-
-                // Map through the questions to structure the data as needed
-                const formattedQuestions = questions.map(question => ({
-                    id: question._id,
-                    text: question.questionText,
-                    options: question.options, // Access the options directly
-                }));
-
-                console.log('Formatted Questions:', formattedQuestions);
-
-                // Use formattedQuestions in your response or further logic
-                res.status(200).json({
-                    message: 'Questions retrieved successfully.',
-                    questions: formattedQuestions
-                });
-            }
-        }
-        else {
-            console.log("Please login");
-        }
-    }
-    catch (error) {
-        console.log(error)
-    }
-})
-
 //Score calculation and DB update:
-playerroute.patch('/submit-quiz', authenticate, async (req, res) => {
+playerroute.patch('/updatequizscore', authenticate, async (req, res) => {
 
     const loginRole = req.userrole;
+    console.log(loginRole);
+    
+    const loginUser = req.username
+    console.log(loginUser);
+    
     try {
         if (loginRole == 'User') {
 
-            const { playerId, answers, categoryId } = req.body;
+            const { answerSet, quizId } = req.body;
             let totalScore = 0;
             let correctAnswers = 0;
             let incorrectAnswers = 0;
 
-            const questionSet = await QuestionSet.findOne({ dbquizId: categoryId });
+            const questionSet = await QuestionSet.findOne({ dbquizId: quizId });
             console.log("QuestionSet: ", questionSet);
 
             if (!questionSet) {
@@ -195,20 +140,21 @@ playerroute.patch('/submit-quiz', authenticate, async (req, res) => {
                 const correctAnswersList = questionSet.dbquestions.map(question => question.answer);
                 console.log("Correct answer list: ", correctAnswersList);
 
-                answers.forEach((answer, idx) => {
+                answerSet.forEach((answer, idx) => {
                     // console.log(`Index: ${idx}, Answer: ${answer}`);
                     if (answer == correctAnswersList[idx]) {
-                        totalScore += 4;  // Correct answer, +4 points
-                        correctAnswers++;
-                    } else {
-                        totalScore -= 2;  // Incorrect answer, -2 points
-                        incorrectAnswers++;
-                    }
-                    console.log("Total Score: ", totalScore,);
+                        correctAnswers += 2;  // Correct answer, +4 points
 
+                    } else {
+                        incorrectAnswers -= 2;  // Incorrect answer, -2 points
+
+                    }
                 });
+                totalScore = correctAnswers + incorrectAnswers;
+                console.log("Total Score: ", totalScore,);
+
                 // Update Player Schema
-                const player = await Player.findOne({ dbUsername: playerId })
+                const player = await Player.findOne({ dbUsername: loginUser })
                 console.log("Player Dtls: ", player);
 
                 if (!player) {
@@ -218,20 +164,20 @@ playerroute.patch('/submit-quiz', authenticate, async (req, res) => {
 
                     // Add to dbScores
                     player.dbScores.push({
-                        quizId: questionSet._id,
+                        quizId: quizId,
                         score: totalScore,
                     });
                     // Add to dbQuizHistory
                     player.dbQuizHistory.push({
-                        categoryId,
+                        quizId,
                         score: totalScore,
                     });
                     // Update dbTotalScore
                     player.dbTotalScore += totalScore;
                     await player.save();
-                    console.log(`Updated details for ${playerId}:`, player);
+                    console.log(`Updated details for ${loginUser}:`, player);
                 }
-                return res.status(200).json({ message: `${playerId} is updated with Score details` });
+                return res.status(200).json({Scores: player.dbScores});
             }
         }
         else {
@@ -243,8 +189,110 @@ playerroute.patch('/submit-quiz', authenticate, async (req, res) => {
     }
 })
 
+playerroute.get('/fetchScores/:Id', authenticate, async (req,res) => {
+
+    const loginRole = req.userrole
+    console.log(loginRole);
+    
+    const loginUser = req.username
+    console.log(loginUser);
+    
+    // try{
+
+        if(loginRole == 'User'){
+
+            const quizId = req.params.Id;
+            let latestscore = 0;
+
+        const existingUser = await Player.findOne({dbUsername : loginUser})
+        console.log(existingUser);
+        
+        if(existingUser){
+
+            const scoreValues = existingUser.dbScores;
+            console.log('score: ',scoreValues);
+            
+            scoreValues.forEach((score) => {
+                if(score.quizId == quizId){
+                    latestscore = score.score;
+                }
+            })
+            res.status(200).json({Scores : latestscore})
+            console.log('Score shared to front end');
+        }
+        else{
+
+        }
+        }
+        
+    // }
+    // catch(error){
+
+    // }
+})
+
+// playerroute.post('/submitquiz', authenticate, async (req, res) => {
+
+//     // const loginRole = req.userrole;
+//     try {
+
+//         // if (loginRole == 'User') {
+
+//             const { playerId, Title } = req.body;
+//             const quizCategory = await QuizCatgry.findOne({ dbTitle: Title });
+//             console.log("Category", quizCategory);
+
+//             if (!quizCategory) {
+//                 return res.status(404).json({ message: 'Quiz category not found' });
+//             }
+//             else {
+
+//                 // Fetch questions from the QuestionSet for the selected category
+//                 const questionSet = await QuestionSet.findOne({ dbquizId: quizCategory._id }).populate('dbquestions');
+//                 console.log("Question Set", questionSet);
+
+//                 if (!questionSet || questionSet.length === 0) {
+//                     return res.status(404).json({ message: 'No question set found for this category.' });
+//                 }
+
+//                 // Now retrieve the questions from questionSet
+//                 const questions = questionSet.dbquestions;
+//                 console.log("Actual Questions", questions);
+
+
+//                 // Ensure that questions is an array
+//                 if (!Array.isArray(questions)) {
+//                     return res.status(500).json({ message: 'Questions data is not an array.' });
+//                 }
+
+//                 // Map through the questions to structure the data as needed
+//                 const formattedQuestions = questions.map(question => ({
+//                     id: question._id,
+//                     text: question.questionText,
+//                     options: question.options, // Access the options directly
+//                 }));
+
+//                 console.log('Formatted Questions:', formattedQuestions);
+
+//                 // Use formattedQuestions in your response or further logic
+//                 res.status(200).json({
+//                     message: 'Questions retrieved successfully.',
+//                     questions: formattedQuestions
+//                 });
+//             }
+//         // }
+//         // else {
+//         //     console.log("Please login");
+//         // }
+//     }
+//     catch (error) {
+//         console.log(error)
+//     }
+// })
+
 //To GET the Score details
-playerroute.get('/dashboard', authenticate, async (req, res) => {
+
+playerroute.get('/scorecard', authenticate, async (req, res) => {
 
     console.log('Logging of Dashboard Route starts here.....');
 
@@ -254,34 +302,22 @@ playerroute.get('/dashboard', authenticate, async (req, res) => {
     try {
         if (loginRole == 'User') {
 
-            const playerId = req.UserName;
+            const playerId = req.username;
             console.log("Username:", playerId);
 
             // Fetch the player by ID
-            const player = await Player.findOne({ dbEmail: playerId })
-            console.log('Existing Player data: ', player);
+            const player = await Player.findOne({ dbUsername: playerId })
 
-            // console.log('Data retrieved from DB');            
+            const sortedScores = player.dbScores.sort((a, b) => new Date(b.date) - new Date(a.date));
+            // console.log('Sorted: ', sortedScores);            
 
             if (!player) {
                 return res.status(404).json({ message: 'Player not found' });
             }
             else {
 
-                const categoryIds = player.dbQuizHistory.map(history => history.categoryId);
-                // console.log(categoryIds);
-                categoryIds.forEach(async (categoryIds) => {
-
-                    const questionSet = await QuestionSet.findOne({ dbquizId: categoryIds })
-                    // console.log(questionSet);
-                    res.status(200).json({
-                        message: 'Dashboard data retrieved successfully',
-                        data: {
-                            player: player,
-                            questionSet: questionSet
-                        }
-                    })
-                })
+                res.status(200).json({TotalScore: player.dbTotalScore, 
+                    LatestScore: sortedScores.length > 0 ? sortedScores[0] : null})
                 console.log('Data send to frontend');
 
             }

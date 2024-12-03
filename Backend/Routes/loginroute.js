@@ -15,23 +15,53 @@ loginroute.post('/login', async (req, res) => {
         const { Email, Password } = req.body
 
         result = await Admin.findOne({ dbEmail: Email })
-        if (!result) {
+
+        if (result && result.dbRole == 'admin') {
+
+            const isvalid = await bcrypt.compare(Password, result.dbPassword)
+            if (isvalid) {
+                const token = jwt.sign(
+                    { username: result.dbUsername, userrole: result.dbRole },
+                    SecretKey,
+                    { expiresIn: '1h' }
+                )
+                res.cookie('AuthToken', token, {
+                    httpOnly: true
+                })
+                console.log("Login successfull");
+                res.status(200).json({
+                    message: 'Success',
+                    username: result.dbUsername,
+                    role: result.dbRole
+                })
+            }
+            else {
+                res.status(404).json({ message: "Incorrect credentials" })
+                console.log("Please check your credentials");
+            }
+        }
+        else {
 
             result = await Player.findOne({ dbEmail: Email })
-            if (result) {
+            console.log('player: ', result);
+            if (result.dbRole == 'User') {
 
                 const isvalid = await bcrypt.compare(Password, result.dbPassword)
                 if (isvalid) {
                     const token = jwt.sign(
-                        { username: result.dbEmail, userrole: result.dbRole },
+                        { username: result.dbUsername, userrole: result.dbRole },
                         SecretKey,
                         { expiresIn: '1h' }
                     )
                     res.cookie('AuthToken', token, {
                         httpOnly: true
                     })
-                    res.status(200).json({ message: "Success" })
                     console.log("Login successfull");
+                    res.status(200).json({
+                        message: 'Success',
+                        username: result.dbUsername,
+                        role: result.dbRole
+                    })
                 }
                 else {
                     res.status(404).json({ message: "Incorrect credentials" })
@@ -39,28 +69,9 @@ loginroute.post('/login', async (req, res) => {
                 }
             }
             else {
-                res.status(404).json({ message: "Not authorised" })
-                console.log("Not authorised");
-            }
-        }
-        else {
 
-            const isvalid = await bcrypt.compare(Password, result.dbPassword)
-            if (isvalid) {
-                const token = jwt.sign(
-                    { username: result.dbEmail, userrole: result.dbRole },
-                    SecretKey,
-                    { expiresIn: '1h' }
-                )
-                res.cookie('AuthToken', token, {
-                    httpOnly: true
-                })
-                res.status(200).json({ message: "Success" })
-                console.log("Login successfull");
-            }
-            else {
-                res.status(404).json({ message: "Incorrect credentials" })
-                console.log("Please check your credentials");
+                res.status(404).json({ message: "Please register" })
+                console.log("Not authorised");
             }
         }
     }
@@ -70,25 +81,38 @@ loginroute.post('/login', async (req, res) => {
     }
 })
 
-loginroute.get('/check-auth', authenticate, (req,res) => {
+loginroute.get('/protected-route', authenticate, async (req, res) => {
 
-    try{
+    const username = req.username
+    const role = req.userrole
+    try {
 
-        const loginRole = req.userrole
-        const loginName = req.username
-        res.status(200).json({loginRole, loginName})
+        const existingUser = await Admin.findOne({ dbUsername: username })
+        if (existingUser && role == 'admin') {
+
+            res.status(200).json({ role: existingUser.dbRole, name: existingUser.dbUsername })
+            console.log('Authorized Person');
+        }
+        else {
+            const existingUser = await Player.findOne({ dbUsername: username })
+            if (existingUser && role == 'User') {
+                res.status(200).json({ role: existingUser.dbRole, name: existingUser.dbUsername })
+                console.log('Registered User');
+            }
+        }
+
     }
-    catch(error){
+    catch (error) {
 
         console.log('Issue in verifying');
-        
+
     }
 })
 
 loginroute.get("/logout", (req, res) => {
-    res.clearCookie("Authtoken");
+    localStorage.removeItem('Authtoken');
     res.status(200).send("Logout successful");
     return res;
-  });
+});
 
-export { loginroute}
+export { loginroute }
