@@ -9,7 +9,7 @@ const TakeQuiz = () => {
     // const [score, setScore] = useState(0);
     const { quizId } = useParams();
     const navigate = useNavigate();
-    const [timeLeft, setTimeLeft] = useState(600);
+    const [timeLeft, setTimeLeft] = useState(60);
     const [quizCompleted, setQuizCompleted] = useState(false);
 
     // Fetch quiz data from the backend when the page loads
@@ -100,7 +100,7 @@ const TakeQuiz = () => {
         <div className="quiz-container w-96 h-auto bg-gray-200 mt-[150px] ml-[500px] drop-shadow-xl">
             <div className="question-card">
                 {/* Timer Display */}
-                <div className="timer mb-4 text-2xl font-medium">
+                <div className="timer mt-4 mb-4 text-2xl font-medium">
                     <p>Time Left: {Math.floor(timeLeft / 60)}:{timeLeft % 60}</p>
                 </div>
 

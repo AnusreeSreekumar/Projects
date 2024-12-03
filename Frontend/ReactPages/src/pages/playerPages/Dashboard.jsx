@@ -8,6 +8,7 @@ const QuizTopics = () => {
     const [loading, setLoading] = useState(true);
     const [totalScore, setTotalScore] = useState('');
     const [latestScore, setLatestScore] = useState([]);
+    const [attempted, setAttempted] = useState({});
 
     useEffect(() => {
 
@@ -17,25 +18,34 @@ const QuizTopics = () => {
                     credentials: 'include',
                 });
                 const ScoreData = await resScores.json();
-                // console.log('ScoreData: ', ScoreData);
-
                 setTotalScore(ScoreData.TotalScore);
                 setLatestScore(ScoreData.LatestScore);
-                // console.log('scorevalue alone: ', ScoreData.Score);
-
 
                 const resQuizset = await fetch('http://localhost:4000/displayquizset');
                 const QuizsetData = await resQuizset.json();
-                console.log('from backend: ', QuizsetData);
                 setQuizSet(QuizsetData);
+                console.log('QuizSet: ', QuizsetData);
+
+
+                const resAttempted = await fetch('http://localhost:4000/attemptedquizzes', {
+                    credentials: 'include',
+                });
+                const attemptedData = await resAttempted.json();
+                setAttempted(attemptedData);
+                console.log('Attempted DAta: ', attemptedData);
+
             } catch (error) {
-                console.log('Error fetching courses:', error);
+                console.log('Error fetching quizData:', error);
             } finally {
                 setLoading(false);
             }
         };
         fetchData();
     }, []);
+
+    // useEffect(() => {
+    //     console.log("Attempted state updated: ", attempted);
+    // }, [attempted]);
 
     if (loading) {
         return <h1 className="text-center mt-10">Loading...</h1>;
@@ -47,19 +57,31 @@ const QuizTopics = () => {
                 {latestScore ? (
                     <ScoreCard totalScore={totalScore} latestScore={latestScore.score} />
                 ) : (
-                    <p>No scores available</p>
+                    <div className="rounded-md shadow-lg flex flex-col items-center justify-center w-full h-40 my-12 mx-12 px-6 py-4 bg-blue-100">
+                        <p className="text-center font-bold mb-8 text-lg text-gray-800">No scores available</p>
+                    </div>
                 )}
             </div>
 
             <div className="quiz-container grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-6">
-                {quizSet.map((quiz) => (
-                    <QuizCard key={quiz.dbquizId} quiz={quiz} isAdmin={false} />
-                ))}
+                {quizSet.map((quiz) => {
+                    const attemptedQuiz = attempted.find(item => item.quizId === quiz.quizId);
+                    const isAttempted = attemptedQuiz !== undefined;
+                    const score = isAttempted ? attemptedQuiz.score : null;
+                    return (
+                        <QuizCard
+                            key={quiz.dbquizId}
+                            quiz={quiz}
+                            isAttempted={isAttempted}
+                            score={score}
+                            isAdmin={false}
+                        />
+                    );
+                })}
             </div>
-
         </div>
-
     );
 };
+
 
 export default QuizTopics;

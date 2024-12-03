@@ -1,14 +1,12 @@
 import { Router } from "express";
 import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
-import jwt from 'jsonwebtoken';
 import mongoose from "mongoose";
 
 import { Player } from "../Models/playerSet.js";
 import { authenticate } from "../Middleware/auth.js";
 import { QuestionSet } from "../Models/questionSet.js";
 import { QuizCatgry } from "../Models/quizCatgry.js";
-import { quizEventEmitter } from "../quizEvents.js";
 
 dotenv.config();
 const playerroute = Router();
@@ -86,6 +84,44 @@ playerroute.get('/displayquizset', authenticate, async (req, res) => {
     }
 })
 
+playerroute.get('/scorecard', authenticate, async (req, res) => {
+
+    const loginRole = req.userrole;
+    console.log("Role:", loginRole);
+
+    try {
+        if (loginRole == 'User') {
+
+            const playerId = req.username;
+            console.log("Username:", playerId);
+
+            // Fetch the player by ID
+            const player = await Player.findOne({ dbUsername: playerId })
+
+            const sortedScores = player.dbScores.sort((a, b) => new Date(b.date) - new Date(a.date));
+            // console.log('Sorted: ', sortedScores);            
+
+            if (!player) {
+                return res.status(404).json({ message: 'Player not found' });
+            }
+            else {
+
+                res.status(200).json({
+                    TotalScore: player.dbTotalScore,
+                    LatestScore: sortedScores.length > 0 ? sortedScores[0] : null,
+                    AllScores: player.dbScores,
+                })
+                console.log('Data send to frontend');
+
+            }
+        }
+    }
+    catch (error) {
+        console.error('Error fetching dashboard data:', error);
+        res.status(500).json({ message: 'Failed to retrieve dashboard data' });
+    }
+});
+
 playerroute.get('/takequiz/:Id', authenticate, async (req, res) => {
 
     const loginRole = req.userrole;
@@ -117,10 +153,10 @@ playerroute.patch('/updatequizscore', authenticate, async (req, res) => {
 
     const loginRole = req.userrole;
     console.log(loginRole);
-    
+
     const loginUser = req.username
     console.log(loginUser);
-    
+
     try {
         if (loginRole == 'User') {
 
@@ -143,7 +179,7 @@ playerroute.patch('/updatequizscore', authenticate, async (req, res) => {
                 answerSet.forEach((answer, idx) => {
                     // console.log(`Index: ${idx}, Answer: ${answer}`);
                     if (answer == correctAnswersList[idx]) {
-                        correctAnswers += 2;  // Correct answer, +4 points
+                        correctAnswers += 4;  // Correct answer, +4 points
 
                     } else {
                         incorrectAnswers -= 2;  // Incorrect answer, -2 points
@@ -167,17 +203,13 @@ playerroute.patch('/updatequizscore', authenticate, async (req, res) => {
                         quizId: quizId,
                         score: totalScore,
                     });
-                    // Add to dbQuizHistory
-                    player.dbQuizHistory.push({
-                        quizId,
-                        score: totalScore,
-                    });
                     // Update dbTotalScore
                     player.dbTotalScore += totalScore;
+                    player.updatedAt = Date.now();
                     await player.save();
                     console.log(`Updated details for ${loginUser}:`, player);
                 }
-                return res.status(200).json({Scores: player.dbScores});
+                return res.status(200).json({ Scores: player.dbScores });
             }
         }
         else {
@@ -189,144 +221,107 @@ playerroute.patch('/updatequizscore', authenticate, async (req, res) => {
     }
 })
 
-playerroute.get('/fetchScores/:Id', authenticate, async (req,res) => {
+playerroute.get('/fetchScores/:Id', authenticate, async (req, res) => {
 
     const loginRole = req.userrole
     console.log(loginRole);
-    
+
     const loginUser = req.username
     console.log(loginUser);
-    
-    // try{
 
-        if(loginRole == 'User'){
+    try {
+
+        if (loginRole == 'User') {
 
             const quizId = req.params.Id;
             let latestscore = 0;
 
-        const existingUser = await Player.findOne({dbUsername : loginUser})
-        console.log(existingUser);
-        
-        if(existingUser){
+            const existingUser = await Player.findOne({ dbUsername: loginUser })
+            console.log(existingUser);
 
-            const scoreValues = existingUser.dbScores;
-            console.log('score: ',scoreValues);
-            
-            scoreValues.forEach((score) => {
-                if(score.quizId == quizId){
-                    latestscore = score.score;
-                }
-            })
-            res.status(200).json({Scores : latestscore})
-            console.log('Score shared to front end');
-        }
-        else{
+            if (existingUser) {
 
-        }
-        }
-        
-    // }
-    // catch(error){
+                const scoreValues = existingUser.dbScores;
+                console.log('score: ', scoreValues);
 
-    // }
+                scoreValues.forEach((score) => {
+                    if (score.quizId == quizId) {
+                        latestscore = score.score;
+                    }
+                })
+                res.status(200).json({ Scores: latestscore })
+                console.log('Score shared to front end');
+            }
+            else {
+            }
+        }
+    }
+    catch (error) {
+        console.log('Error occurred while fetching score details');
+    }
 })
 
-// playerroute.post('/submitquiz', authenticate, async (req, res) => {
-
-//     // const loginRole = req.userrole;
-//     try {
-
-//         // if (loginRole == 'User') {
-
-//             const { playerId, Title } = req.body;
-//             const quizCategory = await QuizCatgry.findOne({ dbTitle: Title });
-//             console.log("Category", quizCategory);
-
-//             if (!quizCategory) {
-//                 return res.status(404).json({ message: 'Quiz category not found' });
-//             }
-//             else {
-
-//                 // Fetch questions from the QuestionSet for the selected category
-//                 const questionSet = await QuestionSet.findOne({ dbquizId: quizCategory._id }).populate('dbquestions');
-//                 console.log("Question Set", questionSet);
-
-//                 if (!questionSet || questionSet.length === 0) {
-//                     return res.status(404).json({ message: 'No question set found for this category.' });
-//                 }
-
-//                 // Now retrieve the questions from questionSet
-//                 const questions = questionSet.dbquestions;
-//                 console.log("Actual Questions", questions);
-
-
-//                 // Ensure that questions is an array
-//                 if (!Array.isArray(questions)) {
-//                     return res.status(500).json({ message: 'Questions data is not an array.' });
-//                 }
-
-//                 // Map through the questions to structure the data as needed
-//                 const formattedQuestions = questions.map(question => ({
-//                     id: question._id,
-//                     text: question.questionText,
-//                     options: question.options, // Access the options directly
-//                 }));
-
-//                 console.log('Formatted Questions:', formattedQuestions);
-
-//                 // Use formattedQuestions in your response or further logic
-//                 res.status(200).json({
-//                     message: 'Questions retrieved successfully.',
-//                     questions: formattedQuestions
-//                 });
-//             }
-//         // }
-//         // else {
-//         //     console.log("Please login");
-//         // }
-//     }
-//     catch (error) {
-//         console.log(error)
-//     }
-// })
-
-//To GET the Score details
-
-playerroute.get('/scorecard', authenticate, async (req, res) => {
-
-    console.log('Logging of Dashboard Route starts here.....');
+playerroute.get('/attemptedquizzes', authenticate, async (req, res) => {
 
     const loginRole = req.userrole;
-    console.log("Role:", loginRole);
+    const loginUser = req.username
 
     try {
         if (loginRole == 'User') {
 
-            const playerId = req.username;
-            console.log("Username:", playerId);
-
-            // Fetch the player by ID
-            const player = await Player.findOne({ dbUsername: playerId })
-
-            const sortedScores = player.dbScores.sort((a, b) => new Date(b.date) - new Date(a.date));
-            // console.log('Sorted: ', sortedScores);            
-
+            const player = await Player.findOne({dbUsername : loginUser});
+            console.log(player);
+            
             if (!player) {
                 return res.status(404).json({ message: 'Player not found' });
             }
             else {
 
-                res.status(200).json({TotalScore: player.dbTotalScore, 
-                    LatestScore: sortedScores.length > 0 ? sortedScores[0] : null})
-                console.log('Data send to frontend');
+                const attemptedQuizzes = player.dbScores;
+                return res.status(200).json(attemptedQuizzes);
+            }
+        }
+        else{
+            console.log('Please login');
+            res.status(404).json({message: 'Not authorized User'})
+        }
 
+    } catch (error) {
+        console.error('Error occurred while fetching details');
+    }
+});
+
+playerroute.get('/leaderboard', authenticate, async (req,res) => {
+
+    const loginRole = req.userrole;
+    // const result = []
+    // const 
+
+    try {
+        if (loginRole == 'User') {    
+
+            const boardData = await Player.find().sort({ dbTotalScore: -1 })
+            console.log('boardData', boardData);
+            
+            if(boardData){
+                const simplifiedBoardData = boardData.map(player => ({
+                    dbUsername: player.dbUsername,
+                    dbTotalScore: player.dbTotalScore
+                }));
+                res.status(200).json({
+                    boardData : simplifiedBoardData
+                })
+                console.log('Data retrieved');
+            }
+            else{
+                res.status(404).json({message: 'No records'})
+                console.log('No Data to be retrieved');
             }
         }
     }
-    catch (error) {
-        console.error('Error fetching dashboard data:', error);
-        res.status(500).json({ message: 'Failed to retrieve dashboard data' });
+    catch(error){
+        console.log('Error occurred while fetching players data');        
     }
-});
+})
 
 export { playerroute }

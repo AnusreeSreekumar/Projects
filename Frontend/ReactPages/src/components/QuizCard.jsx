@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-const QuizCard = ({ quiz, isAdmin }) => {
+const QuizCard = ({ quiz, isAttempted, score, isAdmin }) => {
     return (
         <div
             key={quiz.dbquizId}
@@ -17,16 +17,20 @@ const QuizCard = ({ quiz, isAdmin }) => {
             </div>
 
             <div className="mt-auto">
-                {!isAdmin && (
+                {!isAttempted ? (
                     <Link
                         to={`/takequiz/${quiz.quizId}`}
                         className="px-6 py-2 bg-teal-600 text-white font-semibold text-lg rounded-lg hover:bg-teal-700 transition-colors duration-300 shadow-md focus:outline-none focus:ring-2 focus:ring-teal-400">
                         Take this Quiz
                     </Link>
+                ) : (
+                    <div className="text-center">
+                        <p className="text-white font-semibold text-2xl">Attempted</p>
+                        <p className="text-xl font-bold text-blue-600">Score: {score}</p>
+                    </div>
                 )}
             </div>
         </div>
-
     );
 };
 

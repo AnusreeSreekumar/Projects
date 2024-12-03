@@ -32,7 +32,8 @@ const AdminNavbar = () => {
              hover:underline'>
                 <Link to="/player-dashboard" className='ml-20'>Dashboard</Link>
                 {/* <Link to="/courses" className='ml-20'>Courses</Link> */}
-                <Link to="/contact" className='ml-20'>Contact Us</Link>
+                <Link to="/leader-board" className='ml-20'>Leader Board</Link>
+                <Link to="/player-history" className='ml-20'>Quiz History</Link>
                 <Logout />
             </div>
         </div>

@@ -6,13 +6,13 @@ import Dashboard from './pages/playerPages/Dashboard'
 import AddQuiz from './pages/adminPages/AddQuiz';
 import DisplayQuizSet from './pages/adminPages/AdminQuizSet';
 import QuizDetailsPage from './pages/adminPages/QuizDetailsPage';
-import QuizTopics from './pages/playerPages/QuizTopics';
 import TakeQuiz from './pages/playerPages/TakeQuiz';
 import AuthLayout from './layouts/AuthLayout';
 import MainLayout from './layouts/MainLayout';
 import AdminHome from './pages/adminPages/AdminHome';
 import AdminQuizTopics from './pages/adminPages/AdminQuizSet';
 import Quiz_Result from './pages/playerPages/Quiz_Result'
+import LeaderBoard from './pages/playerPages/LeaderBoard';
 
 const App = () => {
 
@@ -34,10 +34,10 @@ const App = () => {
         <Route element={<MainLayout />}>
           <Route path='/player-dashboard' element={<Dashboard />} />          
           <Route path='/displayquizset' element={<DisplayQuizSet />} />
-          <Route path='/quiztopics' element={<QuizTopics />} />
           <Route path='/quizdetails/:quizId' element={<QuizDetailsPage />} />
           <Route path='/takequiz/:quizId' element={<TakeQuiz />} />
           <Route path='/fetchScores/:quizId' element={<Quiz_Result />} />
+          <Route path='/leader-board' element={<LeaderBoard />} />
 
         </Route>
       </Routes>
