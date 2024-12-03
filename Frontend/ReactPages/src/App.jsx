@@ -13,6 +13,7 @@ import AdminHome from './pages/adminPages/AdminHome';
 import AdminQuizTopics from './pages/adminPages/AdminQuizSet';
 import Quiz_Result from './pages/playerPages/Quiz_Result'
 import LeaderBoard from './pages/playerPages/LeaderBoard';
+import PlayerHistory from './pages/playerPages/PlayerHistory'
 
 const App = () => {
 
@@ -38,6 +39,7 @@ const App = () => {
           <Route path='/takequiz/:quizId' element={<TakeQuiz />} />
           <Route path='/fetchScores/:quizId' element={<Quiz_Result />} />
           <Route path='/leader-board' element={<LeaderBoard />} />
+          <Route path='/history/:username' element={<PlayerHistory />} />
 
         </Route>
       </Routes>

@@ -57,7 +57,7 @@ const QuizTopics = () => {
                 {latestScore ? (
                     <ScoreCard totalScore={totalScore} latestScore={latestScore.score} />
                 ) : (
-                    <div className="rounded-md shadow-lg flex flex-col items-center justify-center w-full h-40 my-12 mx-12 px-6 py-4 bg-blue-100">
+                    <div className="rounded-md shadow-lg flex flex-col items-center justify-center w-[1220px] h-40 my-12 mx-12 px-6 py-4 bg-blue-100">
                         <p className="text-center font-bold mb-8 text-lg text-gray-800">No scores available</p>
                     </div>
                 )}

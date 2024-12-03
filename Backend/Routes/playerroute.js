@@ -2,6 +2,7 @@ import { Router } from "express";
 import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
 import mongoose from "mongoose";
+import moment from 'moment';
 
 import { Player } from "../Models/playerSet.js";
 import { authenticate } from "../Middleware/auth.js";
@@ -269,9 +270,9 @@ playerroute.get('/attemptedquizzes', authenticate, async (req, res) => {
     try {
         if (loginRole == 'User') {
 
-            const player = await Player.findOne({dbUsername : loginUser});
+            const player = await Player.findOne({ dbUsername: loginUser });
             console.log(player);
-            
+
             if (!player) {
                 return res.status(404).json({ message: 'Player not found' });
             }
@@ -281,9 +282,9 @@ playerroute.get('/attemptedquizzes', authenticate, async (req, res) => {
                 return res.status(200).json(attemptedQuizzes);
             }
         }
-        else{
+        else {
             console.log('Please login');
-            res.status(404).json({message: 'Not authorized User'})
+            res.status(404).json({ message: 'Not authorized User' })
         }
 
     } catch (error) {
@@ -291,37 +292,92 @@ playerroute.get('/attemptedquizzes', authenticate, async (req, res) => {
     }
 });
 
-playerroute.get('/leaderboard', authenticate, async (req,res) => {
+playerroute.get('/leaderboard', authenticate, async (req, res) => {
 
     const loginRole = req.userrole;
     // const result = []
     // const 
 
     try {
-        if (loginRole == 'User') {    
+        if (loginRole == 'User') {
 
             const boardData = await Player.find().sort({ dbTotalScore: -1 })
             console.log('boardData', boardData);
-            
-            if(boardData){
+
+            if (boardData) {
                 const simplifiedBoardData = boardData.map(player => ({
                     dbUsername: player.dbUsername,
                     dbTotalScore: player.dbTotalScore
                 }));
                 res.status(200).json({
-                    boardData : simplifiedBoardData
+                    boardData: simplifiedBoardData
                 })
                 console.log('Data retrieved');
             }
-            else{
-                res.status(404).json({message: 'No records'})
+            else {
+                res.status(404).json({ message: 'No records' })
                 console.log('No Data to be retrieved');
             }
         }
     }
-    catch(error){
-        console.log('Error occurred while fetching players data');        
+    catch (error) {
+        console.log('Error occurred while fetching players data');
     }
 })
+
+playerroute.get('/history/:username', authenticate, async (req, res) => {
+
+    const loginRole = req.userrole;
+
+    try {
+
+        if (loginRole == 'User') {
+
+            const username  = req.params.username;
+            const player = await Player.findOne({ dbUsername: username })
+            if (!player) {
+                return res.status(404).json({ message: 'Player not found' });
+            }
+            else {
+
+                const yesterday = moment().subtract(1, 'days').endOf('day').toDate();
+                const history = player.dbScores.filter(score => 
+                    moment(score.date).isBefore(yesterday)
+                ); 
+                console.log('historydata',history);
+                   
+                const historyData = await Promise.all(history.map(async (score) => {
+
+                    const quizCategory = await QuizCatgry.findById(score.quizId);
+
+                    if (!quizCategory) {
+                        return {
+                            quizId: score.quizId,
+                            attemptedAt: score.date,
+                            score: score.score,
+                            title: 'Unknown Quiz' 
+                        };
+                    }
+        
+                    return {
+                        quizId: quizCategory.dbTitle, // Use the dbTitle from QuizCatgry
+                        attemptedAt: score.date,
+                        score: score.score
+                    };
+                }));
+        
+                console.log('historyData with titles:', historyData);
+                res.json({ history: historyData });
+            }
+        }
+        else{
+            console.log('Please login');
+        }
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error fetching player history' });
+    }
+});
 
 export { playerroute }

@@ -28,6 +28,7 @@ const Quiz_Result = () => {
                 else{
                     msg = 'Congratulations!';
                     setMessage(msg)
+                    setMessageColor('text-green-400')
                 }
             }
             catch (error) {

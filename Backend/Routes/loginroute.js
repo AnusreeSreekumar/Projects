@@ -110,9 +110,10 @@ loginroute.get('/protected-route', authenticate, async (req, res) => {
 })
 
 loginroute.get("/logout", (req, res) => {
-    localStorage.removeItem('Authtoken');
-    res.status(200).send("Logout successful");
-    return res;
+
+    res.clearCookie('AuthToken');
+    res.status(200).json({ message: 'Logged out successfully' });
 });
+
 
 export { loginroute }
