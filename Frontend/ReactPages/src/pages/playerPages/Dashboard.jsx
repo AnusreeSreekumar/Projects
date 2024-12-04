@@ -43,10 +43,6 @@ const QuizTopics = () => {
         fetchData();
     }, []);
 
-    // useEffect(() => {
-    //     console.log("Attempted state updated: ", attempted);
-    // }, [attempted]);
-
     if (loading) {
         return <h1 className="text-center mt-10">Loading...</h1>;
     }

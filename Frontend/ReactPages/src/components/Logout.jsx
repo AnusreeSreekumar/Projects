@@ -2,10 +2,10 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom'
 
 const Logout = () => {
-
+  
+  const navigate = useNavigate();
   const handleLogout = async () => {
 
-    const navigate = useNavigate();
     try {
       const response = await fetch('http://localhost:4000/logout', {
         method: 'POST',

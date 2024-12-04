@@ -96,17 +96,21 @@ playerroute.get('/scorecard', authenticate, async (req, res) => {
             const playerId = req.username;
             console.log("Username:", playerId);
 
-            // Fetch the player by ID
             const player = await Player.findOne({ dbUsername: playerId })
-
-            const sortedScores = player.dbScores.sort((a, b) => new Date(b.date) - new Date(a.date));
-            // console.log('Sorted: ', sortedScores);            
-
             if (!player) {
                 return res.status(404).json({ message: 'Player not found' });
             }
             else {
 
+                const yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                const expiredScores = player.dbScores.filter(score => new Date(score.date) < yesterday);
+                const activeScores = player.dbScores.filter(score => new Date(score.date) >= yesterday);
+                player.dbHistory = player.dbHistory.concat(expiredScores);
+                player.dbScores = activeScores;
+                await player.save();
+
+                const sortedScores = activeScores.sort((a, b) => new Date(b.date) - new Date(a.date));
                 res.status(200).json({
                     TotalScore: player.dbTotalScore,
                     LatestScore: sortedScores.length > 0 ? sortedScores[0] : null,
@@ -114,8 +118,11 @@ playerroute.get('/scorecard', authenticate, async (req, res) => {
                 })
                 console.log('Data send to frontend');
 
-            }
+            }          
+
         }
+        console.log('Please login');
+        res.status(404).json({message : 'Please Login'})
     }
     catch (error) {
         console.error('Error fetching dashboard data:', error);
@@ -333,7 +340,7 @@ playerroute.get('/history/:username', authenticate, async (req, res) => {
 
         if (loginRole == 'User') {
 
-            const username  = req.params.username;
+            const username = req.params.username;
             const player = await Player.findOne({ dbUsername: username })
             if (!player) {
                 return res.status(404).json({ message: 'Player not found' });
@@ -341,11 +348,11 @@ playerroute.get('/history/:username', authenticate, async (req, res) => {
             else {
 
                 const yesterday = moment().subtract(1, 'days').endOf('day').toDate();
-                const history = player.dbScores.filter(score => 
+                const history = player.dbScores.filter(score =>
                     moment(score.date).isBefore(yesterday)
-                ); 
-                console.log('historydata',history);
-                   
+                );
+                console.log('historydata', history);
+
                 const historyData = await Promise.all(history.map(async (score) => {
 
                     const quizCategory = await QuizCatgry.findById(score.quizId);
@@ -355,22 +362,22 @@ playerroute.get('/history/:username', authenticate, async (req, res) => {
                             quizId: score.quizId,
                             attemptedAt: score.date,
                             score: score.score,
-                            title: 'Unknown Quiz' 
+                            title: 'Unknown Quiz'
                         };
                     }
-        
+
                     return {
                         quizId: quizCategory.dbTitle, // Use the dbTitle from QuizCatgry
                         attemptedAt: score.date,
                         score: score.score
                     };
                 }));
-        
+
                 console.log('historyData with titles:', historyData);
                 res.json({ history: historyData });
             }
         }
-        else{
+        else {
             console.log('Please login');
         }
     }
