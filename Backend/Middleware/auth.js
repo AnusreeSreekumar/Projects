@@ -7,12 +7,9 @@ const SecretKey = process.env.secretKey
 const authenticate = (req, res, next) => {
 
   const token = req.cookies.AuthToken; // Retrieve token from cookies
-  // console.log('All cookies from req(backend): ', req.cookies); // Debugging all cookies
-  // console.log('AuthToken: ', token); // Debugging the token specifically
-
   if (!token) {
     console.log('No AuthToken found in cookies');
-    return res.status(403).json({ message: 'Authentication token not found' });
+    return res.status(401).json({ message: 'Authentication token not found' });
   }
 
   try {

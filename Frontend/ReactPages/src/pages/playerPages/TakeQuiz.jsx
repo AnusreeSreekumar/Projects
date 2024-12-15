@@ -17,6 +17,7 @@ const TakeQuiz = () => {
         const fetchQuizDetails = async () => {
             try {
                 const response = await fetch(`http://localhost:4000/takequiz/${quizId}`, {
+                    method: 'GET',
                     credentials: 'include'
                 });
                 const data = await response.json();

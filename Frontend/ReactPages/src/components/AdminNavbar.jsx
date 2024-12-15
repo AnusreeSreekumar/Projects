@@ -8,10 +8,8 @@ const AdminNavbar = () => {
     return (
 
         <div className='bg-purple-100 text-purple-950 grid grid-cols-1 md:grid-cols-2 p-3 shadow-md'>
-            <div className='flex justify-center md:justify-end items-center mt-2 md:mt-0 space-x-5 md:space-x-10'>
-                <Link to="/home" className='ml-20'>Home</Link>
-                {/* <Link to="/courses" className='ml-20'>Courses</Link> */}
-                <Link to="/contact" className='ml-20'>Contact Us</Link>
+            <div className='flex justify-end md:mt-0 space-x-5 md:space-x-10'>
+                <Link to="/admin-dashboard" className='ml-20'>Dashboard</Link>  
                 <Logout />
             </div>
         </div>

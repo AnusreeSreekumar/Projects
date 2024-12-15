@@ -20,7 +20,7 @@ const AdminDashboard = () => {
         Description,
         numOfQuestions
       }
-      const res = await fetch('http://localhost:3000/addcategories', {
+      const res = await fetch('http://localhost:4000/addcategories', {
 
         method: 'POST',
         credentials: 'include',

@@ -1,18 +1,40 @@
-import { Outlet, Navigate } from 'react-router-dom';
-import checkAuth from '../utils/checkAuth';
+import React, { useState, useEffect } from 'react';
+import { Navigate, Outlet } from 'react-router-dom';
+import checkAuth from '../utils/checkAuth'; // Adjust the path accordingly
+import AdminNavbar from '../components/AdminNavbar';
 
 const AuthLayout = () => {
-    const userType = checkAuth(); // Assume this retrieves the authenticated user's role
+    const [userType, setUserType] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-    if (!userType) {
-        return <Navigate to="/authenticate" replace />; // Redirect to login if not authenticated
+    // useEffect to fetch userType when the component mounts
+    useEffect(() => {
+        const fetchUserType = async () => {
+            const result = await checkAuth();
+            setUserType(result);
+            setLoading(false);
+        };
+
+        fetchUserType();
+    }, []);  // Empty dependency array ensures it runs once
+
+    if (loading) {
+        return <div>Loading...</div>;
     }
 
-    if (userType.loginRole !== 'admin') {
-        return <Navigate to="/not-found" replace />; // Redirect unauthorized users
+    // Conditional rendering based on userType
+    if (userType == null) {
+        return <Navigate to="/not-found" replace />;  // Redirect if no userType (unauthenticated)
     }
 
-    return <Outlet />; // Render the nested route for admin
+    return (
+    <div >
+        <AdminNavbar />
+        <Outlet /> 
+    </div>
+    
+    ) // Render the child routes if authenticated
 };
 
 export default AuthLayout;
+

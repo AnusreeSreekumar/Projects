@@ -3,11 +3,11 @@ import AdminNavbar from '../../components/AdminNavbar'
 import AdminDashboard from '../../components/AdminDashboard'
 
 const AdminHome = () => {
-    console.log('AdminHome loaded');
+    // console.log('AdminHome loaded');
     return (
 
         <>
-            <AdminNavbar />
+            {/* <AdminNavbar /> */}
             <AdminDashboard />
         </>
     )

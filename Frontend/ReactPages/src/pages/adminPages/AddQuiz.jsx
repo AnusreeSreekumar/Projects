@@ -16,7 +16,9 @@ const AddQuiz = () => {
 
       try {
 
-        const response = await fetch('http://localhost:3000/getcategories'); // Replace with correct endpoint
+        const response = await fetch('http://localhost:4000/getcategories',{
+          credentials: 'include'
+        }); // Replace with correct endpoint
         const data = await response.json();
         console.log('Fetched data:', data);
         setCategories(data.categories || []); // Ensure categories is always an array
@@ -32,8 +34,7 @@ const AddQuiz = () => {
 
   // Handle file input change
   const handleFileChange = (e) => {
-    console.log('Ho');
-    
+   
     const file = e.target.files[0];
     if (file && file.type === 'application/json') {
       const reader = new FileReader();
@@ -82,8 +83,9 @@ const AddQuiz = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`http://localhost:3000/addquestionset/${selectedCategory}`, {
+      const response = await fetch(`http://localhost:4000/addquestionset/${selectedCategory}`, {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(quizDetails),
       });

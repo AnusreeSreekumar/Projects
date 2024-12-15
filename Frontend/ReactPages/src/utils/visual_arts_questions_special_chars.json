@@ -1,25 +1,23 @@
-{
-    "difficulty": "Easy",
-    "questions": [
-      {
+[
+    {
         "questionText": "Who painted the famous artwork 'The Starry Night'?",
         "options": [
             "Vincent van Gogh",
             "Pablo Picasso",
             "Claude Monet",
-            "Leonardo da Vinci"
+            "L\u00e9onardo da Vinci"
         ],
         "answer": "Vincent van Gogh"
     },
     {
         "questionText": "Which art movement is Salvador Dal\u00ed associated with?",
         "options": [
-            "Surrealism",
+            "Surr\u00e9alisme",
             "Cubism",
             "Impressionism",
             "Expressionism"
         ],
-        "answer": "Surrealism"
+        "answer": "Surr\u00e9alisme"
     },
     {
         "questionText": "What is the primary medium used in traditional Chinese painting?",
@@ -27,7 +25,7 @@
             "Oil",
             "Ink",
             "Acrylic",
-            "Watercolor"
+            "Watercolor (\u6c34\u5f69)"
         ],
         "answer": "Ink"
     },
@@ -36,7 +34,7 @@
         "options": [
             "David",
             "The Thinker",
-            "Venus de Milo",
+            "V\u00e9nus de Milo",
             "Laoco\u00f6n and His Sons"
         ],
         "answer": "David"
@@ -45,11 +43,11 @@
         "questionText": "What does the term 'chiaroscuro' refer to in art?",
         "options": [
             "The use of vibrant colors",
-            "The contrast of light and dark",
+            "The contrast of light & dark",
             "Abstract shapes",
             "Texture in sculpture"
         ],
-        "answer": "The contrast of light and dark"
+        "answer": "The contrast of light & dark"
     },
     {
         "questionText": "Which famous artist is known for the painting 'Guernica'?",
@@ -67,7 +65,7 @@
             "Pointillism",
             "Cubism",
             "Fresco",
-            "Stippling"
+            "Stippling (\u70b9\u63cf)"
         ],
         "answer": "Pointillism"
     },
@@ -121,5 +119,4 @@
         ],
         "answer": "Collage"
     }
-    ]
-  }
+]

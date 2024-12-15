@@ -10,10 +10,12 @@ const checkAuth = async () => {
                 credentials: 'include'
             });
 
-            const data = await response.json();
+            const data = await response.json()
+            // console.log('Authdata from backend: ', data);
             return data
         } else {
             console.log('No token found');
+            return null;
         }
     }
     catch (error) {

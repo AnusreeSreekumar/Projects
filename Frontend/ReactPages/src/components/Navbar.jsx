@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import Logout from './Logout'
 import checkAuth from '../utils/checkAuth'
 import user from '../assets/images/user.png'
@@ -7,14 +7,19 @@ import user from '../assets/images/user.png'
 const AdminNavbar = () => {
 
     const [playerName, setPlayerName] = useState('');
+    const navigate = Navigate();
 
     useEffect(() => {
         const fetchPlayerName = async () => {
             const authData = await checkAuth();
             console.log('fetched using protRt: ', authData);
-
-            const name = authData.name;
-            setPlayerName(name);
+            if(authData.role == 'User'){
+                const name = authData.name;
+                setPlayerName(name);
+            }
+            else{
+                navigate('/')
+            }
         };
 
         fetchPlayerName();
@@ -46,7 +51,6 @@ const AdminNavbar = () => {
                         Player History
                     </Link>
                 )}
-                <Logout />
             </div>
         </div>
     )

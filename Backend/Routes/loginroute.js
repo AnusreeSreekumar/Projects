@@ -25,15 +25,9 @@ loginroute.post('/login', async (req, res) => {
                     SecretKey,
                     { expiresIn: '1h' }
                 )
-                res.cookie('AuthToken', token, {
-                    httpOnly: true
-                })
+                res.cookie('AuthToken', token, { httpOnly: true, SameSite: 'Lax', Secure: true });
                 console.log("Login successfull");
-                res.status(200).json({
-                    message: 'Success',
-                    username: result.dbUsername,
-                    role: result.dbRole
-                })
+                res.status(200).json({message: 'Success'})
             }
             else {
                 res.status(404).json({ message: "Incorrect credentials" })
@@ -53,15 +47,9 @@ loginroute.post('/login', async (req, res) => {
                         SecretKey,
                         { expiresIn: '1h' }
                     )
-                    res.cookie('AuthToken', token, {
-                        httpOnly: true
-                    })
+                    res.cookie('AuthToken', token, { httpOnly: true, SameSite: 'Lax', Secure: true });
                     console.log("Login successfull");
-                    res.status(200).json({
-                        message: 'Success',
-                        username: result.dbUsername,
-                        role: result.dbRole
-                    })
+                    res.status(200).json({message: 'Success'})
                 }
                 else {
                     res.status(404).json({ message: "Incorrect credentials" })
@@ -81,25 +69,30 @@ loginroute.post('/login', async (req, res) => {
     }
 })
 
-loginroute.get('/protected-route', authenticate, async (req, res) => {
+    loginroute.get('/protected-route', authenticate, async (req, res) => {
 
-    const username = req.username
-    const role = req.userrole
-    try {
+        const username = req.username
+        const role = req.userrole
+        try {
 
-        const existingUser = await Admin.findOne({ dbUsername: username })
-        if (existingUser && role == 'admin') {
+            res.json({
+                message: 'Authorized Person',
+                role: role,
+                name: username 
+            })
+        // const existingUser = await Admin.findOne({ dbUsername: username })
+        // if (existingUser && role == 'admin') {
 
-            res.status(200).json({ role: existingUser.dbRole, name: existingUser.dbUsername })
-            console.log('Authorized Person');
-        }
-        else {
-            const existingUser = await Player.findOne({ dbUsername: username })
-            if (existingUser && role == 'User') {
-                res.status(200).json({ role: existingUser.dbRole, name: existingUser.dbUsername })
-                console.log('Registered User');
-            }
-        }
+        //     res.status(200).json({ role: existingUser.dbRole, name: existingUser.dbUsername })
+        //     console.log('Authorized Person');
+        // }
+        // else {
+        //     const existingUser = await Player.findOne({ dbUsername: username })
+        //     if (existingUser && role == 'User') {
+        //         res.status(200).json({ role: existingUser.dbRole, name: existingUser.dbUsername })
+        //         console.log('Registered User');
+        //     }
+        // }
 
     }
     catch (error) {

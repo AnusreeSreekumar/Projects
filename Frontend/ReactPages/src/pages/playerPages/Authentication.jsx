@@ -79,12 +79,14 @@ function Authentication() {
             if (response.ok) {
                 setEmail('');
                 setPassword('');
-                console.log(data);
+                const authCheck = await checkAuth();
+                console.log('chkauth fn data: ',authCheck);
+                
                 try {
-                    if(data.role == 'User'){
+                    if(authCheck.role == 'User'){
                         navigate('/player-dashboard')
                     }
-                    else if(data.role == 'admin'){
+                    else if(authCheck.role == 'admin'){
                         navigate('/admin-dashboard')
                     }
                     

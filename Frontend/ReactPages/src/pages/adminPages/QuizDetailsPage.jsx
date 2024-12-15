@@ -10,7 +10,7 @@ const QuizDetailsPage = () => {
     useEffect(() => {
         const fetchQuizDetails = async () => {
             try {
-                const response = await fetch(`http://localhost:3000/displayquizset/${quizId}`);
+                const response = await fetch(`http://localhost:4000/displayquizset/${quizId}`);
                 const data = await response.json();
                 console.log('Retrieved data: ', data);
                 setQuestionSet(data.existingquizSet.dbquestions || []);
@@ -25,7 +25,7 @@ const QuizDetailsPage = () => {
     // Delete the entire quiz set
     const handleDeleteQuizSet = async () => {
         try {
-            const response = await fetch(`http://localhost:3000/deleteQuestionset/${quizId}`, {
+            const response = await fetch(`http://localhost:4000/deleteQuestionset/${quizId}`, {
                 method: 'DELETE',
                 credentials:'include'
             });

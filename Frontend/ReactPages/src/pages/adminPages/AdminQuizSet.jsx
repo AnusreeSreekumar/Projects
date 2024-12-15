@@ -8,7 +8,9 @@ const AdminQuizTopics = () => {
     useEffect(() => {
         const fetchQuiz = async () => {
             try {
-                const res = await fetch('http://localhost:3000/displayquizset');
+                const res = await fetch('http://localhost:4000/displayquizset', {
+                    credentials: 'include'
+                });
                 const data = await res.json();
                 console.log(data);
                 setQuizSet(data);
@@ -26,7 +28,7 @@ const AdminQuizTopics = () => {
     }
 
     return (
-        <div className="quiz-container flex flex-wrap justify-center">
+        <div className="quiz-container grid grid-cols-3 gap-6 justify-start mt-20">
             {quizSet.map((quiz) => (
                 <QuizCard key={quiz.dbquizId} quiz={quiz} isAdmin={true} />
             ))}

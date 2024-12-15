@@ -18,41 +18,62 @@ adminroute.get('/', (req, res) => {
 //Admin Dashboard - Add Quiz topic
 adminroute.post('/addcategories', authenticate, async (req, res) => {
 
-    const loginRole = req.UserRole;
+    const loginRole = req.userrole;
     let cnt, CategorySet;
 
     try {
 
         if (loginRole == 'admin') {
 
-        const {
-            CategoryType,
-            Title,
-            Description,
-            numOfQuestions
-        } = req.body;
+            const {
+                CategoryType,
+                Title,
+                Description,
+                numOfQuestions
+            } = req.body;
 
-        const existingCatgry = await QuizCatgry.findOne({ dbTitle: Title });
-        if (!existingCatgry) {
-            cnt = 1
-            CategorySet = Title + '_' + cnt;
-        }
-        else {
-
-            // Extract the numeric part after the last underscore in dbCategorySet
-            const latest = existingCatgry.dbCategorySet;
-            const cnt = parseInt(latest.split('_')[1], 10);
-            const updated_count = cnt + 1;
-            CategorySet = Title + '_' + updated_count;
-        }
-
-        if (existingCatgry) {
-
-            const exstngCatgrSet = await QuizCatgry.findOne({ dbCategorySet: CategorySet })
-            if (exstngCatgrSet) {
-                res.status(404).json({ message: 'Existing Quiz category' });
-                console.log("Quiz category present");
+            const existingCatgry = await QuizCatgry.findOne({ dbTitle: Title });
+            if (!existingCatgry) {
+                cnt = 1
+                CategorySet = Title + '_' + cnt;
             }
+            else {
+
+                // Extract the numeric part after the last underscore in dbCategorySet
+                const latest = existingCatgry.dbCategorySet;
+                const cnt = parseInt(latest.split('_')[1], 10);
+                const updated_count = cnt + 1;
+                CategorySet = Title + '_' + updated_count;
+            }
+
+            if (existingCatgry) {
+
+                const exstngCatgrSet = await QuizCatgry.findOne({ dbCategorySet: CategorySet })
+                if (exstngCatgrSet) {
+                    res.status(404).json({ message: 'Existing Quiz category' });
+                    console.log("Quiz category present");
+                }
+                else {
+
+                    const newQuizCatgry = new QuizCatgry({
+                        dbCategoryType: CategoryType,
+                        dbCategorySet: CategorySet,
+                        dbTitle: Title,
+                        dbDescription: Description,
+                        dbNumOfQuestions: numOfQuestions, // Store the number of questions if needed
+                        dbQuestions: [] // Set dbquestions array to null initially
+                        // createdAt will be set automatically   
+                    });
+                    const savedQuizCatgry = await newQuizCatgry.save()
+                    res.status(201).json({
+                        message: 'Quiz category added successfully!',
+                        quizCatgryId: savedQuizCatgry._id // Access the automatically generated _id
+                    });
+                    console.log('New Category Id: ', savedQuizCatgry);
+                }
+
+            }
+            // Create a new quiz category document
             else {
 
                 const newQuizCatgry = new QuizCatgry({
@@ -71,27 +92,6 @@ adminroute.post('/addcategories', authenticate, async (req, res) => {
                 });
                 console.log('New Category Id: ', savedQuizCatgry);
             }
-
-        }
-        // Create a new quiz category document
-        else {
-
-            const newQuizCatgry = new QuizCatgry({
-                dbCategoryType: CategoryType,
-                dbCategorySet: CategorySet,
-                dbTitle: Title,
-                dbDescription: Description,
-                dbNumOfQuestions: numOfQuestions, // Store the number of questions if needed
-                dbQuestions: [] // Set dbquestions array to null initially
-                // createdAt will be set automatically   
-            });
-            const savedQuizCatgry = await newQuizCatgry.save()
-            res.status(201).json({
-                message: 'Quiz category added successfully!',
-                quizCatgryId: savedQuizCatgry._id // Access the automatically generated _id
-            });
-            console.log('New Category Id: ', savedQuizCatgry);
-        }
         }
         else {
             console.log("Admin access only");
@@ -104,27 +104,26 @@ adminroute.post('/addcategories', authenticate, async (req, res) => {
 
 //Retrieving categories from DB
 
-adminroute.get('/getcategories', async (req, res) => {
+adminroute.get('/getcategories', authenticate, async (req, res) => {
 
-    const loginRole = req.UserRole; // Extract role from the middleware
+    const loginRole = req.userrole; // Extract role from the middleware
     // console.log('loginrole: ',loginRole);
 
     try {
-        // if (loginRole === 'admin') {
+        if (loginRole === 'admin') {
 
-        const categories = await QuizCatgry.find({}, 'dbCategoryType dbCategorySet dbTitle dbDescription');
+            const categories = await QuizCatgry.find({}, 'dbCategoryType dbCategorySet dbTitle dbDescription');
 
-        if (categories.length === 0) {
-            return res.status(404).json({ message: 'No categories found' });
+            if (categories.length === 0) {
+                return res.status(404).json({ message: 'No categories found' });
+            }
+            else {
+                return res.status(200).json({ categories });
+            }
+
+        } else {
+            res.status(403).json({ message: 'Access denied. Admins only.' });
         }
-        else {
-            return res.status(200).json({ categories });
-        }
-
-
-        // } else {
-        // res.status(403).json({ message: 'Access denied. Admins only.' });
-        // }
     } catch (error) {
         console.error('Error fetching quiz categories:', error);
         res.status(500).json({ message: 'Failed to fetch quiz categories' });
@@ -132,9 +131,9 @@ adminroute.get('/getcategories', async (req, res) => {
 });
 
 //Add questions
-adminroute.post('/addquestionset/:categoryId', async (req, res) => {
+adminroute.post('/addquestionset/:categoryId', authenticate, async (req, res) => {
 
-    const loginRole = req.UserRole;
+    const loginRole = req.userrole;
     try {
 
         // if (loginRole == 'admin') {
@@ -186,7 +185,7 @@ adminroute.post('/addquestionset/:categoryId', async (req, res) => {
     }
 })
 
-adminroute.get('/displayquizset', async (req, res) => {
+adminroute.get('/displayquizset', authenticate, async (req, res) => {
 
     try {
 
@@ -212,22 +211,22 @@ adminroute.get('/displayquizset', async (req, res) => {
     }
 })
 
-adminroute.get('/displayquizset/:Id', async (req, res) => {
+adminroute.get('/displayquizset/:Id', authenticate, async (req, res) => {
 
     try {
-        
+
         const quizId = req.params.Id;
         console.log('Id in req: ', quizId);
-        
-        const existingquizSet = await QuestionSet.findOne({dbquizId : quizId}, 'dbquestions')
+
+        const existingquizSet = await QuestionSet.findOne({ dbquizId: quizId }, 'dbquestions')
         console.log('Existing QuizSet: ', existingquizSet);
 
-        if(existingquizSet){
+        if (existingquizSet) {
 
-            return res.status(200).json({existingquizSet})
+            return res.status(200).json({ existingquizSet })
         }
-        else{
-            return res.status(404).json({message:'No QuizSet found'})
+        else {
+            return res.status(404).json({ message: 'No QuizSet found' })
         }
     } catch (error) {
         console.log('Error occured while fetching Quiz Set');
@@ -237,10 +236,10 @@ adminroute.get('/displayquizset/:Id', async (req, res) => {
 //Delete QuestionSet
 adminroute.delete('/deleteQuestionset/:Id', authenticate, async (req, res) => {
 
-    const loginRole = req.UserRole;
+    const loginRole = req.userrole;
     try {
         if (loginRole == 'admin') {
-            const quizId  = req.params.Id;
+            const quizId = req.params.Id;
             console.log("DB id: ", quizId);
 
             const existingQuestion = await QuestionSet.findOne({ dbquizId: quizId })

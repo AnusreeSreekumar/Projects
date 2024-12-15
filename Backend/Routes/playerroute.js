@@ -85,48 +85,91 @@ playerroute.get('/displayquizset', authenticate, async (req, res) => {
     }
 })
 
-playerroute.get('/scorecard', authenticate, async (req, res) => {
+// playerroute.get('/scorecard', authenticate, async (req, res) => {
 
+//     const loginRole = req.userrole;
+//     console.log("Role:", loginRole);
+
+//     try {
+//         if (loginRole == 'User') {
+
+//             const playerId = req.username;
+//             console.log("Username:", playerId);
+
+//             const player = await Player.findOne({ dbUsername: playerId })
+//             if (!player) {
+//                 return res.status(404).json({ message: 'Player not found' });
+//             }
+//        
+
+//                 const yesterday = new Date();
+//                 yesterday.setDate(yesterday.getDate() - 1);
+//                 const expiredScores = player.dbScores.filter(score => new Date(score.date) < yesterday);
+//                 const activeScores = player.dbScores.filter(score => new Date(score.date) >= yesterday);
+//                 player.dbHistory = player.dbHistory.concat(expiredScores);
+//                 player.dbScores = activeScores;
+//                 await player.save();
+
+//                 const sortedScores = activeScores.sort((a, b) => new Date(b.date) - new Date(a.date));
+//                 res.status(200).json({
+//                     TotalScore: player.dbTotalScore,
+//                     LatestScore: sortedScores.length > 0 ? sortedScores[0] : null,
+//                     AllScores: player.dbScores,
+//                 })
+//                 console.log('Data send to frontend');
+
+//             }          
+
+//         }
+//         console.log('Please login');
+//         res.status(404).json({message : 'Please Login'})
+//     }
+//     catch (error) {
+//         console.error('Error fetching dashboard data:', error);
+//         res.status(500).json({ message: 'Failed to retrieve dashboard data' });
+//     }
+// });
+
+// playerroute.get('/scorecard', authenticate, async (req, res) => {
+//     try {
+//         if (!player) {
+//             return res.status(404).json({ message: 'Player not found' });
+//         }
+//         res.status(200).json({ message: 'Player found' });
+//     } catch (error) {
+//         console.error('Error:', error);
+//         res.status(500).json({ message: 'Internal Server Error' });
+//     }
+// });
+
+playerroute.get('/scorecard', authenticate, async (req, res) => {
     const loginRole = req.userrole;
-    console.log("Role:", loginRole);
 
     try {
-        if (loginRole == 'User') {
-
+        if (loginRole === 'User') {
             const playerId = req.username;
-            console.log("Username:", playerId);
 
-            const player = await Player.findOne({ dbUsername: playerId })
+            const player = await Player.findOne({ dbUsername: playerId });
+
             if (!player) {
-                return res.status(404).json({ message: 'Player not found' });
+                return res.status(404).json({ message: 'Player not found' }); // Ensure return
             }
-            else {
 
-                const yesterday = new Date();
-                yesterday.setDate(yesterday.getDate() - 1);
-                const expiredScores = player.dbScores.filter(score => new Date(score.date) < yesterday);
-                const activeScores = player.dbScores.filter(score => new Date(score.date) >= yesterday);
-                player.dbHistory = player.dbHistory.concat(expiredScores);
-                player.dbScores = activeScores;
-                await player.save();
+            const sortedScores = player.dbScores.sort((a, b) => new Date(b.date) - new Date(a.date));
+            res.status(200).json({
+                TotalScore: player.dbTotalScore,
+                LatestScore: sortedScores.length > 0 ? sortedScores[0] : null,
+                AllScores: player.dbScores,
+            });
 
-                const sortedScores = activeScores.sort((a, b) => new Date(b.date) - new Date(a.date));
-                res.status(200).json({
-                    TotalScore: player.dbTotalScore,
-                    LatestScore: sortedScores.length > 0 ? sortedScores[0] : null,
-                    AllScores: player.dbScores,
-                })
-                console.log('Data send to frontend');
-
-            }          
-
+        } else {
+            res.status(403).json({ message: 'Not authorized' }); // Ensure return
         }
-        console.log('Please login');
-        res.status(404).json({message : 'Please Login'})
-    }
-    catch (error) {
+    } catch (error) {
         console.error('Error fetching dashboard data:', error);
-        res.status(500).json({ message: 'Failed to retrieve dashboard data' });
+        if (!res.headersSent) {
+            res.status(500).json({ message: 'Failed to retrieve dashboard data' });
+        }
     }
 });
 
@@ -144,10 +187,10 @@ playerroute.get('/takequiz/:Id', authenticate, async (req, res) => {
 
             if (existingquizSet) {
 
-                return res.status(200).json({ existingquizSet })
+                res.status(200).json({ existingquizSet })
             }
             else {
-                return res.status(404).json({ message: 'No QuizSet found' })
+                res.status(404).json({ message: 'No QuizSet found' })
             }
         }
     }
