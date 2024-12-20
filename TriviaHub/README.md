@@ -5,8 +5,7 @@
 A centralized quiz platform offering diverse category-based games. Admins manage quizzes, adding questions and categories stored in a database. Players enjoy engaging gameplay while scoring and performance are tracked, fostering a fun and competitive environment for learning and entertainment. 
 
 
-## ![icons8-tech-stack-64](https://github.com/user-attachments/assets/a3c01772-9f85-4a4c-8ebd-82083ab75b2f)
-Tech Stack
+## ![icons8-tech-stack-64](https://github.com/user-attachments/assets/a3c01772-9f85-4a4c-8ebd-82083ab75b2f) Tech Stack
 
 **Client:** React, TailwindCSS
 
