@@ -47,6 +47,7 @@ Server: Access the server @ http://localhost:4000/
 ## Configuation
 
 Environment Valriables: configuration settings and JWT secret keys are available in .env file
+
 ## Contributing
 
 Feel free to notify issues and create pull requests.
